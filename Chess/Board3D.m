@@ -1,5 +1,6 @@
 //#import <AppKit/AppKit.h>
 
+#import <AppKit/NSPrintOperation.h>
 #import <AppKit/NSImage.h>
 #import <AppKit/NSPrintInfo.h>
 #import <AppKit/NSBitmapImageRep.h>
@@ -161,7 +162,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
     NSString  *path1, *path2;
     NSSize  size;
     int r, c;
-
+    
     [self allocateGState];
     bundle = [NSBundle mainBundle];
     path1 = [bundle pathForImageResource: @"3d_board"];
@@ -170,7 +171,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
     _pieces = [[NSImage alloc] initWithContentsOfFile: path2];
     size = NSMakeSize( BACK_STORE_WIDTH, BACK_STORE_HEIGHT );
     backBitmap = [[NSImage alloc] initWithSize: size];
-
+    
     for( r = 0; r < 8; r++ ) {
         for( c = 0; c < 8; c++ )
             square[r][c] = [[Square3D alloc] init];
@@ -232,7 +233,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
     float  m, b, dx, x;
     NSRect  loc;
     Square3D  *theSquare = square[row][col];
-
+    
     [theSquare setPieceType: p color: c];
     [theSquare setRow: row];
     dx = (vertical[col].a.x -  vertical[col].b.x);
@@ -241,7 +242,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
     x  = (dx) ? ((horizontal[row] - b) / m) : vertical[col].a.x;
     loc.origin.x = x;
     loc.origin.y = horizontal[row];
-
+    
     col2 = col + 1;
     dx = (vertical[col2].a.x -  vertical[col2].b.x);
     m  = (vertical[col2].a.y -  vertical[col2].b.y) / dx;
@@ -249,7 +250,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
     x  = (dx) ? ((horizontal[row] - b) / m) : vertical[col2].a.x;
     loc.size.width  = x - loc.origin.x;
     loc.size.height = 99999;
-
+    
     [theSquare setLocation: loc];
     return;
 }
@@ -263,65 +264,65 @@ static void convert_point( NSPoint *p, int *r, int *c )
     int  controlGState;
     float  incX, incY;
     int  increments, i;
-
+    
     theSquare = square[row1][col1];
     pieceType = [theSquare pieceType];
     if( ! pieceType )
         return;
     color = [theSquare colorVal];
     oldLocation = [theSquare location];
-
+    
     squareOrigin( row2, col2, &endP.x, &endP.y );
-
+    
     /* Remove piece and then save background */
     [theSquare setPieceType: NO_PIECE color: NEUTRAL];
     [self drawRect: [self frame]];
-
+    
     squareOrigin( row1, col1, &backP.x, &backP.y );
     controlGState = [self gState];
-
+    
     [backBitmap lockFocus];
     PSgsave();
-    PScomposite( roundedBackP.x = floor(backP.x), roundedBackP.y = floor(backP.y), 
-				 BACK_STORE_WIDTH, BACK_STORE_HEIGHT, controlGState, 
-				 (float)0.0, (float)0.0, NSCompositeCopy );
+    PScomposite( roundedBackP.x = floor(backP.x), roundedBackP.y = floor(backP.y),
+                BACK_STORE_WIDTH, BACK_STORE_HEIGHT, controlGState,
+                (float)0.0, (float)0.0, NSCompositeCopy );
     PSgrestore();
-    [backBitmap unlockFocus];   
-
+    [backBitmap unlockFocus];
+    
     [self lockFocus];
     [theSquare setPieceType: pieceType color: color];
     [theSquare drawInteriorWithFrame: [self frame] inView: self];
     [theSquare setMoving: YES];
     [[self window] flushWindow];
-
+    
     incX = endP.x - backP.x;
     incY = endP.y - backP.y;
     increments = (int) MAX( ABS(incX), ABS(incY) ) / 7;	// was 5 gcr
     incX = incX / increments;
     incY = incY / increments;
-
+    
     for( i = 0; i < increments; i++ ) {
         int  dr, dc;
         NSRect  newLocation;
-
+        
         /* Restore old background */
         [self lockFocus];
         [backBitmap compositeToPoint: roundedBackP operation: NSCompositeCopy];
-        [self unlockFocus];   
-
+        [self unlockFocus];
+        
         backP.x += incX;
         backP.y += incY;
         convert_point( &backP, &dr, &dc );
-
+        
         /* Save new background */
         [backBitmap lockFocus];
         PSgsave();
-		PScomposite( roundedBackP.x = floor(backP.x), roundedBackP.y = floor(backP.y), 
-					 BACK_STORE_WIDTH, BACK_STORE_HEIGHT, controlGState, 
-					 (float)0.0, (float)0.0, NSCompositeCopy );
+        PScomposite( roundedBackP.x = floor(backP.x), roundedBackP.y = floor(backP.y),
+                    BACK_STORE_WIDTH, BACK_STORE_HEIGHT, controlGState,
+                    (float)0.0, (float)0.0, NSCompositeCopy );
         PSgrestore();
-        [backBitmap unlockFocus];     
-
+        [backBitmap unlockFocus];
+        
         /* Draw piece at new location. */
         [theSquare setRow: dr];
         newLocation.origin = backP;
@@ -330,7 +331,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
         [theSquare drawInteriorWithFrame: [self frame] inView: self];
         [[self window] flushWindow];
     }
-
+    
     [theSquare setMoving: NO];
     [self unlockFocus];
     return;
@@ -358,10 +359,10 @@ static void convert_point( NSPoint *p, int *r, int *c )
 {
     NSPoint  p1, p2, p3, p4;
     int  idx;
-
+    
     squareBounds( row, col, &p1, &p2, &p3, &p4 );
     [self lockFocus];
-
+    
     PSgsave();
     PSsetlinewidth( (float)3.0 );
     PSmoveto( p1.x, p1.y );
@@ -370,7 +371,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
     PSlineto( p3.x, p3.y );
     PSlineto( p1.x, p1.y );
     PSclosepath();
-
+    
     /* flash 2 times */
     for( idx = 1; idx <= 3; idx++ ) {
         float  color = NSWhite;
@@ -380,7 +381,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
         PSstroke();
         PSgrestore();
         if( [self pieceAt: row : col]
-            || (row > 0 && [self pieceAt: row-1 : col]) )
+           || (row > 0 && [self pieceAt: row-1 : col]) )
             [self drawRows: row from: col];
         [[self window] flushWindow];
         if( ! [square[row][col] isMoving] )
@@ -388,7 +389,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
     }
     PSgrestore();
     [self unhighlightSquareAt: row : col];
-
+    
     [self unlockFocus];
     return;
 }
@@ -397,7 +398,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
 {
     NSPoint p1, p2, p3, p4, to;
     NSRect backR;
-
+    
     squareBounds( row, col, &p1, &p2, &p3, &p4 );
     p1.x = p1.x - 3;
     p1.y = p1.y - 3;
@@ -407,14 +408,14 @@ static void convert_point( NSPoint *p, int *r, int *c )
     p3.y = p3.y - 3;
     p4.x = p4.x + 3;
     p4.y = p4.y + 3;
-
+    
     to.x = MIN( p1.x, p2.x );
     to.y = p1.y;
-
+    
     backR.origin = to;
     backR.size.width  = MAX( p3.x, p4.x ) - to.x;
     backR.size.height = p2.y - p1.y;
-
+    
     [self lockFocus];
     PSgsave();
     PSsetlinewidth( (float)3.0 );
@@ -427,13 +428,13 @@ static void convert_point( NSPoint *p, int *r, int *c )
     PSlineto( p1.x, p1.y );
     PSclosepath();
     PSclip();
-
+    
     [_background compositeToPoint:to fromRect:backR operation:NSCompositeCopy];
     PSgrestore();
     if( [self pieceAt: row : col] || (row > 0 && [self pieceAt: row-1 : col]) )
         [self drawRows: row from: col];
     [[self window] flushWindow];
-
+    
     [self unlockFocus];
     return;
 }
@@ -441,10 +442,10 @@ static void convert_point( NSPoint *p, int *r, int *c )
 - (void) flashSquareAt: (int)row : (int)col
 {
     NSPoint p1, p2, p3, p4;
-
+    
     squareBounds( row, col, &p1, &p2, &p3, &p4 );
     [self lockFocus];
-
+    
     PSgsave();
     PSsetlinewidth( (float)3.0 );
     PSsetgray( NSWhite );
@@ -457,10 +458,10 @@ static void convert_point( NSPoint *p, int *r, int *c )
     PSclosepath();
     PSstroke();
     PSgrestore();
-
+    
     if( [self pieceAt: row : col] || (row > 0 && [self pieceAt: row-1 : col]) )
         [self drawRows: row from: col];
-
+    
     [self unlockFocus];
     return;
 }
@@ -483,7 +484,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
     NSSize	fs  = [self frame].size;
     float	hm  = (ps.width  - fs.width)  / 2.0;
     float	vm  = (ps.height - fs.height) / 2.0;
-
+    
     [pi setLeftMargin: hm];
     [pi setRightMargin: hm];
     [pi setTopMargin: vm];
@@ -492,7 +493,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
     [self lockFocus];
     printImage = [[NSBitmapImageRep alloc] initWithFocusedViewRect: [self bounds]];
     [self unlockFocus];
-
+    
     [super print: sender];
     [printImage release];
     printImage = nil;
@@ -510,7 +511,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
         for( r = 7; r >= 0; r-- ) {
             for( c = 7; c >= 0; c-- ) {
                 Square3D  *theSquare = square[r][c];
-                [theSquare drawWithFrame: f inView: self];
+                [theSquare drawWithFrame: self.frame inView: self];
             }
         }
         PSgrestore();

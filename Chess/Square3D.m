@@ -145,9 +145,7 @@ king, queen, bishop, rook, knight, pawn -- white then black.
     p.y = (float) floor_value( (double)p.y );
 
     bitmap = [(Board3D *)v piecesBitmap];	// ??
-    [v lockFocus];
-    [bitmap compositeToPoint: p fromRect: f operation: NSCompositeSourceOver];
-    [v unlockFocus];
+    [bitmap drawAtPoint: p fromRect: f operation: NSCompositingOperationSourceOver fraction:1.0];
 
     return;
 }

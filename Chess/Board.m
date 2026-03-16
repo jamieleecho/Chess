@@ -297,7 +297,7 @@ short  p;
 
 	PSgsave();
 	cr.size.width  = f.size.width  / 8.0;
-	cr.size.height = f.size.height / 8.0;
+	cr.size.height = self.frame.size.height / 8.0;
 	for( r = 0; r < 8; r++ ) {
 	    cr.origin.y = r * cr.size.height;
 	    for( c = 0; c < 8; c++ ) {

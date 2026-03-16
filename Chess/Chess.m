@@ -76,8 +76,8 @@ void CL_MakeMove(const char * move)
 								NULL]];
 
     gameBoard = self.board3D;
-    [self.board2D retain];
-    [self.board2D removeFromSuperview];
+    // [self.board2D retain];
+    // [self.board2D removeFromSuperview];
 
 	scanner = [NSScanner scannerWithString:[defaults objectForKey:@"WhiteColor"]];
 	[scanner scanFloat:&red];
@@ -307,8 +307,8 @@ void CL_MakeMove(const char * move)
 		short  *pieces = current_pieces();
 		short  *colors = current_colors();
 
-		[gameBoard retain];
-		[gameBoard removeFromSuperview];
+		// [gameBoard retain];
+		// [gameBoard removeFromSuperview];
 
 		//	[v lockFocus];
 		//	PSgsave();
@@ -317,9 +317,12 @@ void CL_MakeMove(const char * move)
 		//	PSgrestore();
 		//	[v unlockFocus];
 
-		[v addSubview: self.board2D];
-		[self.board2D release];
+		// [v addSubview: self.board2D];
+        
+		// [self.board2D release];
+        gameBoard.hidden = YES;
 		gameBoard = self.board2D;
+        gameBoard.hidden = NO;
 		[gameBoard layoutBoard: pieces color: colors];
 
 		[self disableClockPanel];
@@ -336,12 +339,14 @@ void CL_MakeMove(const char * move)
 		short  *pieces = current_pieces();
 		short  *colors = current_colors();
 
-		[gameBoard retain];
-		[gameBoard removeFromSuperview];
+		// [gameBoard retain];
+		// [gameBoard removeFromSuperview];
 
-		[v addSubview: self.board3D];
-		[self.board3D release];
-		gameBoard = self.board3D;
+		// [v addSubview: self.board3D];
+		// [self.board3D release];
+        gameBoard.hidden = YES;
+        gameBoard = self.board3D;
+        gameBoard.hidden = NO;
 		[gameBoard layoutBoard: pieces color: colors];
 
 		[self enableClockPanel];

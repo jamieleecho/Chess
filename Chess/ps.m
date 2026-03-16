@@ -5,7 +5,7 @@
 //  Created by Jamie Cho on 3/15/26.
 //
 
-#include "ps.h"
+#include <Cocoa/Cocoa.h>
 
 
 void PSWait(void) {
@@ -45,6 +45,7 @@ void PSnewpath(void) {
 
 
 void PSrectfill(float x, float y, float w, float h) {
+    NSRectFill(NSMakeRect(x, y, w, h));
 }
 
 
@@ -73,6 +74,7 @@ void PSsetlinewidth(float width) {
 
 
 void PSsetgray(float gray) {
+    [[NSColor colorWithWhite:gray alpha:1] set];
 }
 
 

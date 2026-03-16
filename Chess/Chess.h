@@ -1,4 +1,5 @@
 #import <AppKit/NSApplication.h>
+#import <AppKit/NSControl.h>
 #import <Foundation/NSUserDefaults.h>
 
 @class NSString;
@@ -102,7 +103,7 @@ void PSashow(float w, float h, const char *s);
     id  infoScroll;
 
 // game board
-    id   gameBoard;		// board2D or board3D
+    NSControl  *gameBoard;		// board2D or board3D
     int  currentRow;
     int  currentCol;
 
