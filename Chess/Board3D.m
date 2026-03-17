@@ -163,6 +163,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
     NSSize  size;
     int r, c;
     
+    self.enabled = YES;
     [self allocateGState];
     bundle = [NSBundle mainBundle];
     path1 = [bundle pathForImageResource: @"3d_board"];

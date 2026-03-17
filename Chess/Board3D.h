@@ -3,6 +3,7 @@
 @class NSImage;
 @class Square3D;
 
+IB_DESIGNABLE
 @interface Board3D : NSControl
 {
     NSImage 	*_background;

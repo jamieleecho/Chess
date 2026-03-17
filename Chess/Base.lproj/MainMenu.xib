@@ -12,6 +12,8 @@
                 <outlet property="board2D" destination="3Zj-hw-OTS" id="Huj-NY-PTv"/>
                 <outlet property="board3D" destination="4jU-r8-LLl" id="05j-CM-nMy"/>
                 <outlet property="boardWindow" destination="FPn-ue-u7r" id="zYe-rx-2N4"/>
+                <outlet property="menu2D" destination="snW-S8-Cw5" id="bvM-18-eNB"/>
+                <outlet property="menu3D" destination="1UK-8n-QPP" id="CNG-UB-Mig"/>
                 <outlet property="prefPanel" destination="K5c-2G-lvz" id="mdS-hc-CnS"/>
             </connections>
         </customObject>
@@ -151,7 +153,7 @@
                                     <action selector="view2D:" target="-1" id="Nyh-Ny-gd9"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="3 Dimensional" image="view.3d" catalog="system" keyEquivalent="B" id="1UK-8n-QPP">
+                            <menuItem title="3 Dimensional" state="on" image="view.3d" catalog="system" keyEquivalent="B" id="1UK-8n-QPP">
                                 <connections>
                                     <action selector="view3D:" target="-1" id="rn6-Gu-sM1"/>
                                 </connections>
@@ -208,11 +210,11 @@
                 <rect key="frame" x="0.0" y="0.0" width="700" height="600"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <customView id="3Zj-hw-OTS" customClass="Board">
+                    <customView id="4jU-r8-LLl" customClass="Board3D">
                         <rect key="frame" x="0.0" y="0.0" width="700" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     </customView>
-                    <customView id="4jU-r8-LLl" customClass="Board3D">
+                    <customView hidden="YES" id="3Zj-hw-OTS" customClass="Board">
                         <rect key="frame" x="0.0" y="0.0" width="700" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     </customView>

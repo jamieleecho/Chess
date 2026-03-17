@@ -3,6 +3,7 @@
 @class Square;
 @class NSImage;
 
+IB_DESIGNABLE
 @interface Board : NSControl
 {
     NSImage	*backBitmap;

@@ -84,6 +84,7 @@ short  p;
 	int r, c;
 	NSSize size;
 
+    self.enabled = YES;
     NSRect f = self.frame;
 	[self allocateGState];
 	size.width  = f.size.width  / 8.0;
@@ -405,14 +406,15 @@ short  p;
 
 	    if( icon && [self isEnabled] ) {
 		/* Restore old background */
+            controlGState = [self gState];
 		[self lockFocus];
-		[backBitmap compositeToPoint:roundedBackP operation:NSCompositeCopy];
+        NSRect r = NSMakeRect(0, 0, backBitmap.size.width, backBitmap.size.height);
+        [backBitmap drawAtPoint:roundedBackP fromRect:r operation:NSCompositingOperationCopy fraction:1.0];
 		[self unlockFocus];
 
 		/* Save new background */
-                backP.x = pieceRect.origin.x = p.x - pickedP.x;
+        backP.x = pieceRect.origin.x = p.x - pickedP.x;
 		backP.y = pieceRect.origin.y = p.y - pickedP.y;
-                
 		[backBitmap lockFocus];
 		PSgsave();
 		roundedBackP.x = floor(backP.x); 
@@ -425,13 +427,16 @@ short  p;
 		[backBitmap unlockFocus];
 
 		/* Draw piece at new location. */
+        [self lockFocus];
+            
 		[theSquare drawInteriorWithFrame: pieceRect inView: self];
+        [self unlockFocus];
 
 		PSsetgray( NSBlack );
 		PSsetlinewidth( (float)2.0 );
 		PSclippath();
 		PSstroke();
-		[[self window] flushWindow];
+		[self.window flushWindow];
 	    }
 	}
       NS_HANDLER

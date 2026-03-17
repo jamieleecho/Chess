@@ -124,7 +124,7 @@
     s = [bitmap size];
     p.x = (float) floor_value( (double)(((r.size.width  - s.width)  / 2.0) + r.origin.x) );
     p.y = (float) floor_value( (double)(((r.size.height - s.height) / 2.0) + r.origin.y) );
-    [bitmap compositeToPoint: p operation: NSCompositingOperationSourceOver];
+    [bitmap compositeToPoint: p operation: NSCompositeSourceOver];
     return;
 }
 
