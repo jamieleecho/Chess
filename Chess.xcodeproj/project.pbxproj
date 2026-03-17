@@ -176,7 +176,9 @@
 				INFOPLIST_FILE = Chess/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Chess;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.board-games";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright 2001 Apple Computer, Inc.,
+Copyright 2026 Jamie Cho
+All Rights Reserved";
 				INFOPLIST_KEY_NSMainNibFile = MainMenu;
 				INFOPLIST_KEY_NSPrincipalClass = Chess;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -220,7 +222,7 @@
 				INFOPLIST_FILE = Chess/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Chess;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.board-games";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright 2001 Apple Computer, Inc., All Rights Reserved";
 				INFOPLIST_KEY_NSMainNibFile = MainMenu;
 				INFOPLIST_KEY_NSPrincipalClass = Chess;
 				LD_RUNPATH_SEARCH_PATHS = (

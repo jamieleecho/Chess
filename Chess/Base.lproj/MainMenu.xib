@@ -215,7 +215,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     </customView>
                     <customView hidden="YES" id="3Zj-hw-OTS" customClass="Board">
-                        <rect key="frame" x="0.0" y="0.0" width="700" height="600"/>
+                        <rect key="frame" x="50" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     </customView>
                 </subviews>
