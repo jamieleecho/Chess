@@ -133,11 +133,11 @@ void PSashow(float w, float h, const char *s);
 
 // PrefPanel
 @property (nonatomic, weak) IBOutlet NSSlider *levelSlider;
-@property (nonatomic, weak) IBOutlet NSTextView *levelText;
+@property (nonatomic, weak) IBOutlet NSTextField *levelText;
 @property (nonatomic, weak) IBOutlet NSButton *prefSetButton;
 @property (nonatomic, weak) IBOutlet NSComboBox *gamePopup;
-@property (nonatomic, weak) IBOutlet NSTextView *whiteSideName;
-@property (nonatomic, weak) IBOutlet NSTextView *blackSideName;
+@property (nonatomic, weak) IBOutlet NSTextField *whiteSideName;
+@property (nonatomic, weak) IBOutlet NSTextField *blackSideName;
 @property (nonatomic, weak) IBOutlet NSButton *srCheckBox;
 
 // InfoPanel
