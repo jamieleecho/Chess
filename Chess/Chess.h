@@ -1,6 +1,4 @@
-#import <AppKit/NSApplication.h>
-#import <AppKit/NSControl.h>
-#import <Foundation/NSUserDefaults.h>
+#import <Cocoa/Cocoa.h>
 
 @class NSString;
 @class NSColor;
@@ -90,18 +88,6 @@ void PSashow(float w, float h, const char *s);
     id  startButton;
     id  forceButton;
 
-// PrefPanel
-    id  levelSlider;
-    id  levelText;
-    id  prefSetButton;
-	id  gamePopup;
-    id  whiteSideName;
-    id  blackSideName;
-	id  srCheckBox;
-
-// InfoPanel
-    id  infoScroll;
-
 // game board
     NSControl  *gameBoard;		// board2D or board3D
     int  currentRow;
@@ -145,6 +131,17 @@ void PSashow(float w, float h, const char *s);
 @property (nonatomic, weak) IBOutlet Board *board2D;
 @property (nonatomic, weak) IBOutlet Board3D *board3D;
 
+// PrefPanel
+@property (nonatomic, weak) IBOutlet NSSlider *levelSlider;
+@property (nonatomic, weak) IBOutlet NSTextView *levelText;
+@property (nonatomic, weak) IBOutlet NSButton *prefSetButton;
+@property (nonatomic, weak) IBOutlet NSComboBox *gamePopup;
+@property (nonatomic, weak) IBOutlet NSTextView *whiteSideName;
+@property (nonatomic, weak) IBOutlet NSTextView *blackSideName;
+@property (nonatomic, weak) IBOutlet NSButton *srCheckBox;
+
+// InfoPanel
+@property (nonatomic, weak) IBOutlet NSScrollView *infoScroll;
 
 // MainMenu responders
 - (IBAction)info: (id)sender;

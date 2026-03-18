@@ -69,8 +69,8 @@ void CL_MakeMove(const char * move)
 				  [NSDictionary dictionaryWithObjectsAndKeys:
 									@"0 0 0 1", @"WhiteColor",
 								@"0 0 0 1", @"BlackColor",
-								[levelSlider objectValue], @"Level",
-								@"NO", @"BothSides", 
+								[self.levelSlider objectValue], @"Level",
+								@"NO", @"BothSides",
 								@"YES", @"PlayerHasWhite",
 								@"YES", @"SpeechRecognition",
 								NULL]];
@@ -95,23 +95,23 @@ void CL_MakeMove(const char * move)
     black_color = [[NSColor colorWithCalibratedRed:red green:green blue:blue alpha:1.0] retain];
 	[blackColorWell setColor:black_color];
 
-	[levelSlider setIntValue:[defaults integerForKey:@"Level"]];
+	[self.levelSlider setIntValue:[defaults integerForKey:@"Level"]];
 	
 	if ([defaults boolForKey:@"BothSides"])
-		[gamePopup selectItemAtIndex:2];	
+		[self.gamePopup selectItemAtIndex:2];
 	else if ([defaults boolForKey:@"PlayerHasWhite"])
-		[gamePopup selectItemAtIndex:0];
+		[self.gamePopup selectItemAtIndex:0];
 	else
-		[gamePopup selectItemAtIndex:1];
+		[self.gamePopup selectItemAtIndex:1];
 
 	prefs.useSR = [defaults boolForKey:@"SpeechRecognition"];
-	[srCheckBox setState:prefs.useSR];
+	[self.srCheckBox setState:prefs.useSR];
 
 	[self setWhiteColor: self];
 	[self setBlackColor: self];
     [self renderColors: self];		// default color pieces
 
-	[self chooseSide: whiteSideName];
+	[self chooseSide: self.whiteSideName];
     [self setPreferences: self];	// default preferences
 
     dirtyGame = NO;
@@ -141,14 +141,14 @@ void CL_MakeMove(const char * move)
 
 - (void)showGnuDisclaimer: (id)sender
 {
-    id  text = [infoScroll documentView];
+    id  text = [self.infoScroll documentView];
     NSString  *string = [text string];
-    if( ! string || [string isEqual: @""] ) {
+    if( ! string || [string isEqual: @""] || [string isEqual: @" "]) {
         string = copyright_text();
         [text setString: string];
         [text sizeToFit];
 		//	[text setFont:[NSFont fontWithName: @"Times" size: (float)14.0]];
-        [infoScroll display];
+        [self.infoScroll display];
     }
     [self.infoPanel makeKeyAndOrderFront: sender];
     return;
@@ -543,10 +543,10 @@ void CL_MakeMove(const char * move)
     else
 		format = NSLocalizedString( @"%d move in %d minutes", nil );
     string = [NSString stringWithFormat: format, moves, minutes];
-    [levelText setStringValue: string];
+    [self.levelText setStringValue: string];
 
     if( level != game_level() )
-		[prefSetButton setEnabled: YES];
+		[self.prefSetButton setEnabled: YES];
     return;
 }
 
@@ -554,32 +554,32 @@ void CL_MakeMove(const char * move)
 
 - (void)chooseSide: (id)sender
 {
-	switch ([gamePopup indexOfSelectedItem]) {
+	switch ([self.gamePopup indexOfSelectedItem]) {
 	case 0: /* Human vs. Computer */
-		[whiteSideName setStringValue: user_fullname()];
-		[blackSideName setStringValue: NSLocalizedString(@"Computer",nil)];
+		[self.whiteSideName setStringValue: user_fullname()];
+		[self.blackSideName setStringValue: NSLocalizedString(@"Computer",nil)];
 		if ( !( !prefs.bothsides && prefs.computer == BLACK))
-			[prefSetButton setEnabled: YES];
+			[self.prefSetButton setEnabled: YES];
 		break;
 	case 1: /* Computer vs. Human */
-		[whiteSideName setStringValue: NSLocalizedString(@"Computer",nil)];
-		[blackSideName setStringValue: user_fullname()];
+		[self.whiteSideName setStringValue: NSLocalizedString(@"Computer",nil)];
+		[self.blackSideName setStringValue: user_fullname()];
 		if ( !( !prefs.bothsides && prefs.computer == WHITE))
-			[prefSetButton setEnabled: YES];
+			[self.prefSetButton setEnabled: YES];
 		break;
 	case 2: /* Computer vs. Computer */
-		[whiteSideName setStringValue: NSLocalizedString(@"Computer",nil)];
-		[blackSideName setStringValue: NSLocalizedString(@"Computer",nil)];
+		[self.whiteSideName setStringValue: NSLocalizedString(@"Computer",nil)];
+		[self.blackSideName setStringValue: NSLocalizedString(@"Computer",nil)];
 		if ( !prefs.bothsides )
-			[prefSetButton setEnabled: YES];
+			[self.prefSetButton setEnabled: YES];
 		break;
 	}
-	if (prefs.useSR != [srCheckBox state])
-		[prefSetButton setEnabled: YES];		
-	if( ! [prefs.white_name isEqual: [whiteSideName stringValue]]  )
-		[prefSetButton setEnabled: YES];
-	if( ! [prefs.black_name isEqual: [blackSideName stringValue]] )
-		[prefSetButton setEnabled: YES];
+	if (prefs.useSR != [self.srCheckBox state])
+		[self.prefSetButton setEnabled: YES];
+	if( ! [prefs.white_name isEqual: [self.whiteSideName stringValue]]  )
+		[self.prefSetButton setEnabled: YES];
+	if( ! [prefs.black_name isEqual: [self.blackSideName stringValue]] )
+		[self.prefSetButton setEnabled: YES];
     return;
 }
 
@@ -588,8 +588,8 @@ void CL_MakeMove(const char * move)
 - (void)controlTextDidBeginEditing: (NSNotification *)notification
 {
     id  txField = [notification object];
-    if( txField == whiteSideName || txField == blackSideName ) {
-		[prefSetButton setEnabled: YES];
+    if( txField == self.whiteSideName || txField == self.blackSideName ) {
+		[self.prefSetButton setEnabled: YES];
     }
     return;
 }
@@ -599,12 +599,12 @@ void CL_MakeMove(const char * move)
 - (void)setPreferences: (id)sender
 {
     int  button;
-    int  level = [levelSlider intValue];
+    int  level = [self.levelSlider intValue];
 
     set_game_level ( level );
     interpret_level( level, &prefs.time_cntl_moves, &prefs.time_cntl_minutes );
 
-	switch ([gamePopup indexOfSelectedItem]) {
+	switch ([self.gamePopup indexOfSelectedItem]) {
 	case 0:
 		prefs.bothsides = NO;
 		prefs.opponent  = WHITE;
@@ -622,28 +622,28 @@ void CL_MakeMove(const char * move)
 		break;
     }
 
-	if (prefs.useSR && ![srCheckBox state])
+	if (prefs.useSR && ![self.srCheckBox state])
 		CL_DontListen();
-	prefs.useSR = [srCheckBox state];
+	prefs.useSR = [self.srCheckBox state];
     prefs.cheat = YES;		// always YES?
 
-    if( ! [prefs.white_name isEqual: [whiteSideName stringValue]] ) {
+    if( ! [prefs.white_name isEqual: [self.whiteSideName stringValue]] ) {
 		[prefs.white_name release];
-		prefs.white_name = [[whiteSideName stringValue] retain];
+		prefs.white_name = [[self.whiteSideName stringValue] retain];
 		[whiteClockText setStringValue: prefs.white_name];
     }
-    if( ! [prefs.black_name isEqual: [blackSideName stringValue]] ) {
+    if( ! [prefs.black_name isEqual: [self.blackSideName stringValue]] ) {
 		[prefs.black_name release];
-		prefs.black_name = [[blackSideName stringValue] retain];
+		prefs.black_name = [[self.blackSideName stringValue] retain];
 		[blackClockText setStringValue: prefs.black_name];
     }
 
     set_preferences( &prefs );
-    [prefSetButton setEnabled: NO];
+    [self.prefSetButton setEnabled: NO];
 
     if( sender == self )	return;		// default setting
 
-	[defaults setInteger:[levelSlider intValue] forKey:@"Level"];
+	[defaults setInteger:[self.levelSlider intValue] forKey:@"Level"];
 	[defaults setBool:prefs.bothsides forKey:@"BothSides"];
 	[defaults setBool:prefs.computer  forKey:@"PlayerHasWhite"];
 	[defaults setBool:prefs.useSR forKey:@"SpeechRecognition"];
@@ -941,27 +941,27 @@ void CL_MakeMove(const char * move)
 
 - (void)enablePrefPanel
 {
-    [levelSlider setEnabled: YES];
-    [levelText setTextColor: [NSColor blackColor]];
-    [gamePopup setEnabled: YES];
-    [whiteSideName setEnabled: YES];
-    [blackSideName setEnabled: YES];
-    if( [levelSlider intValue] != game_level() ||
-		! [prefs.white_name isEqual: [whiteSideName stringValue]] ||
-		! [prefs.black_name isEqual: [blackSideName stringValue]] ) {
-		[prefSetButton setEnabled: YES];
+    [self.levelSlider setEnabled: YES];
+    [self.levelText setTextColor: [NSColor blackColor]];
+    [self.gamePopup setEnabled: YES];
+    [self.whiteSideName setEnabled: YES];
+    [self.blackSideName setEnabled: YES];
+    if( [self.levelSlider intValue] != game_level() ||
+		! [prefs.white_name isEqual: [self.whiteSideName stringValue]] ||
+		! [prefs.black_name isEqual: [self.blackSideName stringValue]] ) {
+		[self.prefSetButton setEnabled: YES];
     }
     return;
 }
 
 - (void)disablePrefPanel
 {
-    [levelSlider setEnabled: NO];
-    [levelText setTextColor: [NSColor darkGrayColor]];
-    [gamePopup setEnabled: NO];
-    [whiteSideName setEnabled: NO];
-    [blackSideName setEnabled: NO];
-    [prefSetButton setEnabled: NO];
+    [self.levelSlider setEnabled: NO];
+    [self.levelText setTextColor: [NSColor darkGrayColor]];
+    [self.gamePopup setEnabled: NO];
+    [self.whiteSideName setEnabled: NO];
+    [self.blackSideName setEnabled: NO];
+    [self.prefSetButton setEnabled: NO];
     return;
 }
 
