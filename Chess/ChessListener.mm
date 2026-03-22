@@ -243,6 +243,7 @@ void CLSRMoveBuilder::StartMoveList()
 {
 	StopListening();
     [commands removeAllObjects];
+    [commands addObject:fUndoModel];
 }
 
 void CLSRMoveBuilder::Move(int piece, const CLCoord & fromCoord, const CLCoord & toCoord, bool take, bool omitFrom)
