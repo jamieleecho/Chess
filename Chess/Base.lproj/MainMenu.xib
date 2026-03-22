@@ -38,6 +38,7 @@
                 <outlet property="board2D" destination="3Zj-hw-OTS" id="Huj-NY-PTv"/>
                 <outlet property="board3D" destination="4jU-r8-LLl" id="05j-CM-nMy"/>
                 <outlet property="boardWindow" destination="FPn-ue-u7r" id="zYe-rx-2N4"/>
+                <outlet property="gamePopup" destination="MGy-dL-sez" id="ew5-pQ-ie2"/>
                 <outlet property="infoPanel" destination="1Fz-g8-YFB" id="P6o-hW-eEe"/>
                 <outlet property="infoScroll" destination="4ZK-aS-S8R" id="HhY-cJ-BF2"/>
                 <outlet property="levelSlider" destination="3lI-Mr-onL" id="2g7-9R-8HU"/>
@@ -352,18 +353,24 @@
                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OPP-aD-dAK">
                                     <rect key="frame" x="117" y="13" width="209" height="16"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <textFieldCell key="cell" lineBreakMode="clipping" title="60 moves in 5 minutes" id="U4N-Ir-acl">
+                                    <textFieldCell key="cell" lineBreakMode="clipping" allowsUndo="NO" title="60 moves in 5 minutes" id="U4N-Ir-acl">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
+                                    <connections>
+                                        <outlet property="delegate" destination="-3" id="kbL-GL-HCo"/>
+                                    </connections>
                                 </textField>
                                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3lI-Mr-onL">
                                     <rect key="frame" x="20" y="12" width="85" height="16"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="thP-5d-idD">
-                                        <font key="font" metaFont="system" size="12"/>
+                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="1" maxValue="10" doubleValue="1" tickMarkPosition="above" sliderType="linear" id="thP-5d-idD">
+                                        <font key="font" metaFont="cellTitle"/>
                                     </sliderCell>
+                                    <connections>
+                                        <action selector="levelSliding:" target="-3" id="Kb8-4u-GZk"/>
+                                    </connections>
                                 </slider>
                             </subviews>
                         </view>
@@ -401,11 +408,14 @@ DQ
                                 <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OoX-BC-ajN">
                                     <rect key="frame" x="63" y="40" width="281" height="24"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" title="Human" drawsBackground="YES" id="30f-LD-Tfr">
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" title="Human" drawsBackground="YES" id="30f-LD-Tfr">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
+                                    <connections>
+                                        <action selector="controlTextDidBeginEditing:" target="-3" id="Xb0-Xy-OnX"/>
+                                    </connections>
                                 </textField>
                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="N3b-72-FSI">
                                     <rect key="frame" x="18" y="16" width="40" height="16"/>
@@ -419,18 +429,21 @@ DQ
                                 <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hNx-e3-5Ji">
                                     <rect key="frame" x="61" y="12" width="281" height="24"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" title="Computer" drawsBackground="YES" id="W6L-dD-yqb">
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" title="Computer" drawsBackground="YES" id="W6L-dD-yqb">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
+                                    <connections>
+                                        <action selector="controlTextDidBeginEditing:" target="-3" id="Hdn-hn-ItF"/>
+                                    </connections>
                                 </textField>
                                 <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MGy-dL-sez">
                                     <rect key="frame" x="20" y="72" width="180" height="24"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <popUpButtonCell key="cell" type="push" title="Human vs. Computer" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="tCT-nu-XUF" id="awR-Sl-s6O">
                                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="menu"/>
+                                        <font key="font" metaFont="message"/>
                                         <menu key="menu" id="HbG-EV-Wf4">
                                             <items>
                                                 <menuItem title="Human vs. Computer" state="on" id="tCT-nu-XUF"/>
@@ -439,6 +452,9 @@ DQ
                                             </items>
                                         </menu>
                                     </popUpButtonCell>
+                                    <connections>
+                                        <action selector="chooseSide:" target="-3" id="xkQ-Qy-yXt"/>
+                                    </connections>
                                 </popUpButton>
                             </subviews>
                         </view>
@@ -457,6 +473,9 @@ DQ
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="chooseSide:" target="-3" id="6mG-pf-lws"/>
+                                    </connections>
                                 </button>
                             </subviews>
                         </view>

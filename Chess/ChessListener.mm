@@ -1,10 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
+#import <stdio.h>
+#import <stdlib.h>
+#import <time.h>
+#import <string.h>
 
-#include <Carbon/Carbon.h>
-#include <CoreFoundation/CoreFoundation.h>
+#import <Carbon/Carbon.h>
+#import <Cocoa/Cocoa.h>
+#import <CoreFoundation/CoreFoundation.h>
 
 #include "ChessListener.h"
 
@@ -29,6 +30,13 @@ enum {
     QUEEN,
     KING
 };
+
+
+@interface ChessListenerDelegate : NSObject<NSSpeechRecognizerDelegate> {
+}
+- (void)speechRecognizer:(NSSpeechRecognizer *)sender didRecognizeCommand:(NSString *)command NS_SWIFT_UI_ACTOR;
+@end
+
 
 struct CLCoord {
 	explicit CLCoord(int coord) : fCoord(coord), fCol(coord & 7), fRow(coord >> 3) {}
@@ -79,7 +87,7 @@ private:
 
 void CLDebugMoveBuilder::Move(int piece, const CLCoord & fromCoord, const CLCoord & toCoord, bool take, bool omitFrom)
 {
-	static char * pieceName[] = {"", "Pawn", "Knight", "Bishop", "Rook", "Queen", "King"};
+	static const char * pieceName[] = {"", "Pawn", "Knight", "Bishop", "Rook", "Queen", "King"};
 
 	if (omitFrom)
 		return;
@@ -126,129 +134,115 @@ public:
 	virtual void EndMoveList();
 	
 	bool				OK()			{ return fOK;			}
-	SRRecognitionSystem	RecSystem()		{ return fRecSystem;	}
-	SRRecognizer		Recognizer()	{ return fRecognizer;	}
+	NSSpeechRecognizer *RecSystem()		{ return speechRecognizer;	}
 	void				StartListening();
 	void				StopListening();
 private:
-	SRRecognitionSystem	fRecSystem;
-	SRRecognizer		fRecognizer;
+	NSSpeechRecognizer *speechRecognizer;
+    NSMutableArray<NSString *> *commands;
 	SRLanguageModel		fModel;
-	SRLanguageModel		fTakesModel;
-	SRWord				fToModel;
-	SRWord				fPieceModel[7];
-	SRWord				fCastleModel;
-	SRPhrase			fUndoModel;
-	SRPhrase		    fKingSideModel;
-	SRPhrase			fQueenSideModel;
-	SRWord				fColModel[8];
-	SRWord				fRowModel[8];
+	NSString *  		fTakesModel;
+	NSString *			fToModel;
+    NSString *			fPieceModel[7];
+    NSString *			fCastleModel;
+    NSString *			fUndoModel;
+    NSString *		    fKingSideModel;
+    NSString *			fQueenSideModel;
+    NSString *			fColModel[8];
+    NSString *			fRowModel[8];
 	bool				fOK;
 	bool				fListening;
 	
-	void				MakeWord(SRWord * word, const char * text, bool optional);
-	void				MakePhrase(SRPhrase * phrase, const char * text, bool optional);
-	void				MakeAlt(SRLanguageModel * alt, const char * t1, const char * t2, bool optional);
-	void				MakeHelp();
+	void				MakeWord(NSString ** word, const char * text);
+	void				MakePhrase(NSString ** phrase, const char * text);
+	void				MakeAlt(NSString ** alt, const char * t1, const char * t2);
 };
 
 CLSRMoveBuilder::CLSRMoveBuilder()
 {
 	const char * SvA 	= getenv("CHESS_SPEED");
-	unsigned short speed= SvA ? atoi(SvA) : 25;  
 	long refCon 		= -1;
 
 	fOK 		= false;
 	fListening	= false;
 	
-	if (SROpenRecognitionSystem (&fRecSystem, kSRDefaultRecognitionSystemID))
-		goto failRecSystem;
-	if (SRNewRecognizer(fRecSystem, &fRecognizer, kSRDefaultSpeechSource))
-		goto failRecognizer;
-	SRSetProperty(fRecognizer, kSRSpeedVsAccuracyParam, &speed, sizeof(speed));
+    speechRecognizer = [[NSSpeechRecognizer alloc] init];
+    speechRecognizer.delegate = [[ChessListenerDelegate alloc] init];
+    commands = [[NSMutableArray alloc] init];
 
-	SRNewLanguageModel(fRecSystem, &fModel, "<moves>", 7);
+	MakeWord(&fToModel, 		"to");
+	
+	MakeWord(fPieceModel+1,		"pawn");
+	MakeWord(fPieceModel+2,		"knight");
+	MakeWord(fPieceModel+3,		"bishop");
+	MakeWord(fPieceModel+4,		"rook");
+	MakeWord(fPieceModel+5,		"queen");
+	MakeWord(fPieceModel+6,		"king");
+	
+	MakeWord(&fCastleModel, "castle");
+	MakePhrase(&fKingSideModel, "king side");
+	MakePhrase(&fQueenSideModel, "queen side");
+	MakePhrase(&fUndoModel, "take back move");
+	// TODO: SRSetProperty(fUndoModel, kSRRefCon, &refCon, sizeof(refCon));
+	
+	MakeWord(fColModel+0, "a");
+	MakeWord(fColModel+1, "b");
+	MakeWord(fColModel+2, "c");
+	MakeWord(fColModel+3, "d");
+	MakeWord(fColModel+4, "e");
+	MakeWord(fColModel+5, "f");
+	MakeWord(fColModel+6, "g");
+	MakeWord(fColModel+7, "h");
 
-	MakeWord(&fToModel, 		"to", 		false);
+	MakeWord(fRowModel+0, "1");
+	MakeWord(fRowModel+1, "2");
+	MakeWord(fRowModel+2, "3");
+	MakeWord(fRowModel+3, "4");
+	MakeWord(fRowModel+4, "5");
+	MakeWord(fRowModel+5, "6");
+	MakeWord(fRowModel+6, "7");
+	MakeWord(fRowModel+7, "8");
 	
-	MakeWord(fPieceModel+1,		"pawn",		false);
-	MakeWord(fPieceModel+2,		"knight",	false);
-	MakeWord(fPieceModel+3,		"bishop",	false);
-	MakeWord(fPieceModel+4,		"rook",		false);
-	MakeWord(fPieceModel+5,		"queen",	false);
-	MakeWord(fPieceModel+6,		"king",		false);
-	
-	MakeWord(&fCastleModel, "castle", false);
-	MakePhrase(&fKingSideModel, "king side", false);
-	MakePhrase(&fQueenSideModel, "queen side", false);
-	MakePhrase(&fUndoModel, "take back move", false);
-	SRSetProperty(fUndoModel, kSRRefCon, &refCon, sizeof(refCon));
-	
-	MakeWord(fColModel+0, "a", false);
-	MakeWord(fColModel+1, "b", false);
-	MakeWord(fColModel+2, "c", false);
-	MakeWord(fColModel+3, "d", false);
-	MakeWord(fColModel+4, "e", false);
-	MakeWord(fColModel+5, "f", false);
-	MakeWord(fColModel+6, "g", false);
-	MakeWord(fColModel+7, "h", false);
-
-	MakeWord(fRowModel+0, "1",   false);
-	MakeWord(fRowModel+1, "2",   false);
-	MakeWord(fRowModel+2, "3", false);
-	MakeWord(fRowModel+3, "4",  false);
-	MakeWord(fRowModel+4, "5",  false);
-	MakeWord(fRowModel+5, "6",   false);
-	MakeWord(fRowModel+6, "7", false);
-	MakeWord(fRowModel+7, "8", false);
-	
-	MakeAlt(&fTakesModel, "takes", "to", false);
-	MakeHelp();
+	MakeAlt(&fTakesModel, "takes", "to");
 
 	fOK = true;
 	return;
-failRecognizer:
-	SRCloseRecognitionSystem(fRecSystem);
-failRecSystem:
-	;
 }
 
 CLSRMoveBuilder::~CLSRMoveBuilder()
 {
 	if (!fOK)
 		return;
-	if (fListening) 
-		SRStopListening(fRecognizer);
-	SRReleaseObject(fModel);
-	SRReleaseObject(fTakesModel);
-	SRReleaseObject(fToModel);
+    if (fListening) {
+        [speechRecognizer stopListening];
+        [speechRecognizer release];
+        speechRecognizer = nil;
+    }
+
 	for (int piece = 1; piece<7; ++piece) {
-		SRReleaseObject(fPieceModel[piece]);
+        [fPieceModel[piece] release];
 	}
 	for (int rowcol = 0; rowcol<8; ++rowcol) {
-		SRReleaseObject(fRowModel[rowcol]);
-		SRReleaseObject(fColModel[rowcol]);
+        [fRowModel[rowcol] release];
+        [fColModel[rowcol] release];
 	}
-	SRReleaseObject(fCastleModel);
-	SRReleaseObject(fKingSideModel);
-	SRReleaseObject(fQueenSideModel);
-	SRReleaseObject(fUndoModel);
-	SRReleaseObject(fRecognizer);
-	SRCloseRecognitionSystem(fRecSystem);
+    [fCastleModel release];
+    [fKingSideModel release];
+    [fQueenSideModel release];
+    [fUndoModel release];
 }
 
 void CLSRMoveBuilder::StopListening()
 {
-	if (fListening) 
-		SRStopListening(fRecognizer);
+	if (fListening)
+        [speechRecognizer stopListening];
 	fListening = false;
 }
 
 void CLSRMoveBuilder::StartMoveList()
 {
 	StopListening();
-	SREmptyLanguageObject(fModel);
-	SRAddLanguageObject(fModel, fUndoModel);
+    [commands removeAllObjects];
 }
 
 void CLSRMoveBuilder::Move(int piece, const CLCoord & fromCoord, const CLCoord & toCoord, bool take, bool omitFrom)
@@ -256,81 +250,55 @@ void CLSRMoveBuilder::Move(int piece, const CLCoord & fromCoord, const CLCoord &
 	if (omitFrom)
 		return;
 
-	SRPath	path;
-	SRNewPath(fRecSystem, &path);
+    NSMutableArray<NSString *> *path = NSMutableArray.array;
 	
-	OSType	refCon = 
-		(fromCoord.ColLetter() << 24)
-	  | (fromCoord.RowLetter() << 16)
-	  | (  toCoord.ColLetter() << 8)
-	  |    toCoord.RowLetter();
-	  
-	SRSetProperty (path, kSRRefCon, &refCon, sizeof(refCon));
-
 	if (piece == KING && fromCoord.fCol==4 && !(toCoord.fCol&1) && toCoord.fRow==fromCoord.fRow) {  // Castle
-		SRAddLanguageObject(path, fCastleModel);
-		if (!omitFrom)
-			SRAddLanguageObject(path, toCoord.fCol==6 ? fKingSideModel : fQueenSideModel);
+        [path addObject:fCastleModel];
+        if (!omitFrom) {
+            [path addObject:toCoord.fCol==6 ? fKingSideModel : fQueenSideModel];
+        }
 	} else {
 		if (omitFrom) {
-			SRAddLanguageObject(path, fPieceModel[piece]);
+            [path addObject:fPieceModel[piece]];
 		} else {
-			SRAddLanguageObject(path, fPieceModel[piece]);
-			SRAddLanguageObject(path, fColModel[fromCoord.fCol]);
-			SRAddLanguageObject(path, fRowModel[fromCoord.fRow]);
+            [path addObject:fPieceModel[piece]];
+            [path addObject:fColModel[fromCoord.fCol]];
+            [path addObject:fRowModel[fromCoord.fRow]];
 		}
-		SRAddLanguageObject(path, take ? fTakesModel : fToModel);
-		SRAddLanguageObject(path, fColModel[toCoord.fCol]);
-		SRAddLanguageObject(path, fRowModel[toCoord.fRow]);
+        [path addObject:take ? fTakesModel : fToModel];
+        [path addObject:fColModel[toCoord.fCol]];
+        [path addObject:fRowModel[toCoord.fRow]];
 	}
-	SRAddLanguageObject(fModel, path);
+    [commands addObject:[path componentsJoinedByString:@" "]];
 }
 
 void CLSRMoveBuilder::StartListening()
 {
-	if (!fListening)
-		SRStartListening(fRecognizer);
-	fListening = true;	
+    if (!fListening) {
+        [speechRecognizer startListening];
+    }
+	fListening = true;
 }
 
 void CLSRMoveBuilder::EndMoveList()
 {
-	SRSetLanguageModel(fRecognizer, fModel);
+    speechRecognizer.commands = commands;
 	StartListening();
 }
 
-void CLSRMoveBuilder::MakeWord(SRWord * word, const char * text, bool optional)
-{	
-	SRNewWord(fRecSystem, word, text, strlen(text));
-	if (optional) {
-		Boolean opt = true;
-		SRSetProperty (*word, kSROptional, &opt, sizeof(Boolean));
-	}
-}
-
-void CLSRMoveBuilder::MakePhrase(SRPhrase * phrase, const char * text, bool optional)
-{	
-	SRNewPhrase(fRecSystem, phrase, text, strlen(text));
-	if (optional) {
-		Boolean opt = true;
-		SRSetProperty (*phrase, kSROptional, &opt, sizeof(Boolean));
-	}
-}
-
-void CLSRMoveBuilder::MakeAlt(SRLanguageModel * alt, const char * t1, const char * t2, bool optional)
+void CLSRMoveBuilder::MakeWord(NSString ** word, const char * text)
 {
-	SRNewLanguageModel(fRecSystem, alt, "", 0);
-	SRWord w;
-	SRNewWord(fRecSystem, &w, t1, strlen(t1));
-	SRAddLanguageObject(*alt, w);
-	SRReleaseObject(w);
-	SRNewWord(fRecSystem, &w, t2, strlen(t2));
-	SRAddLanguageObject(*alt, w);
-	SRReleaseObject(w);
-	if (optional) {
-		Boolean opt = true;
-		SRSetProperty (*alt, kSROptional, &opt, sizeof(Boolean));
-	}
+    *word = [[NSString alloc] initWithUTF8String:text];
+}
+
+void CLSRMoveBuilder::MakePhrase(NSString ** phrase, const char * text)
+{
+    *phrase = [[NSString alloc] initWithUTF8String:text];
+}
+
+void CLSRMoveBuilder::MakeAlt(NSString ** alt, const char * t1, const char * t2)
+{
+    *alt = [[NSString alloc] initWithUTF8String:t1];
 }
 
 static CFDataRef	sHelpData;
@@ -338,27 +306,6 @@ static CFDataRef	sHelpData;
 void CL_SetHelp(unsigned len, const void * data)
 {
 	sHelpData = CFDataCreate(NULL, (const UInt8 *)data, len);
-}
-
-void CLSRMoveBuilder::MakeHelp()
-{
-	CFMutableDictionaryRef	dict = 
-		(CFMutableDictionaryRef)
-		   CFPropertyListCreateFromXMLData(NULL, sHelpData, kCFPropertyListMutableContainers, NULL);
-	ProcessSerialNumber	psn;
-	GetCurrentProcess(&psn);
-	CFNumberRef	num = CFNumberCreate(NULL, kCFNumberSInt32Type, &psn.highLongOfPSN);
-	CFDictionaryAddValue(dict, CFSTR("ProcessPSNHigh"), num);
-	CFRelease(num);
-	num = CFNumberCreate(NULL, kCFNumberSInt32Type, &psn.lowLongOfPSN);
-	CFDictionaryAddValue(dict, CFSTR("ProcessPSNLow"), num);
-	CFRelease(num);
-	CFDataRef finalData = CFPropertyListCreateXMLData(NULL, dict);
-	if (finalData) {
-		SRSetProperty(fRecognizer, 'cdpl', CFDataGetBytePtr(finalData), CFDataGetLength(finalData));
-		CFRelease(finalData);
-	}
-	CFRelease(dict);
 }
 
 class CLMoveGenerator {
@@ -637,6 +584,15 @@ pascal OSErr HandleSpeechDoneAppleEvent (const AppleEvent *theAEevt, AppleEvent*
 static CLSRMoveBuilder	*	gBuilder;
 static CLMoveGenerator *	gGenerator;
 
+
+@implementation ChessListenerDelegate
+- (void)speechRecognizer:(NSSpeechRecognizer *)sender didRecognizeCommand:(NSString *)command NS_SWIFT_UI_ACTOR {
+    NSArray *items = [command componentsSeparatedByString:@" "];
+    NSLog(@"%@", items);
+}
+@end
+
+
 static void CL_Init()
 {
   gBuilder = new CLSRMoveBuilder;
@@ -652,7 +608,7 @@ static void CL_Init()
     AEInstallEventHandler(kAESpeechSuite, kAESpeechDone, 
 			  (AEEventHandlerUPP)(HandleSpeechDoneAppleEvent), 0, false);
     short myModes = kSRHasFeedbackHasListenModes;
-    SRSetProperty (gBuilder->Recognizer(), kSRFeedbackAndListeningModes, &myModes, sizeof (myModes));
+    //SRSetProperty (gBuilder->Recognizer(), kSRFeedbackAndListeningModes, &myModes, sizeof (myModes));
   }
 }
 

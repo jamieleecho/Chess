@@ -96,7 +96,8 @@ void CL_MakeMove(const char * move)
 	[blackColorWell setColor:black_color];
 
 	[self.levelSlider setIntValue:[defaults integerForKey:@"Level"]];
-	
+    [self levelSliding:self.levelSlider];
+    
 	if ([defaults boolForKey:@"BothSides"])
 		[self.gamePopup selectItemAtIndex:2];
 	else if ([defaults boolForKey:@"PlayerHasWhite"])

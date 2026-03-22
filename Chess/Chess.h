@@ -135,7 +135,7 @@ void PSashow(float w, float h, const char *s);
 @property (nonatomic, weak) IBOutlet NSSlider *levelSlider;
 @property (nonatomic, weak) IBOutlet NSTextField *levelText;
 @property (nonatomic, weak) IBOutlet NSButton *prefSetButton;
-@property (nonatomic, weak) IBOutlet NSComboBox *gamePopup;
+@property (nonatomic, weak) IBOutlet NSPopUpButton *gamePopup;
 @property (nonatomic, weak) IBOutlet NSTextField *whiteSideName;
 @property (nonatomic, weak) IBOutlet NSTextField *blackSideName;
 @property (nonatomic, weak) IBOutlet NSButton *srCheckBox;
@@ -169,6 +169,7 @@ void PSashow(float w, float h, const char *s);
 // PrefPanel responders
 - (IBAction)levelSliding: (id)sender;
 - (IBAction)chooseSide: (id)sender;
+- (IBAction)controlTextDidBeginEditing: (id)sender;
 - (IBAction)setPreferences: (id)sender;
 
 // invoked by Board.m & Board3D.m
