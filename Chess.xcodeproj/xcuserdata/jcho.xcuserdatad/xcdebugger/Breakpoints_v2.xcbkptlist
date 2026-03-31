@@ -302,9 +302,26 @@
             filePath = "Chess/ChessListener.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "217"
-            endingLineNumber = "217"
+            startingLineNumber = "222"
+            endingLineNumber = "222"
             landmarkName = "CLSRMoveBuilder::~CLSRMoveBuilder()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C42554D3-9943-41C7-9B22-9BB0DB92AD32"
+            shouldBeEnabled = "No"
+            condition = "fOmitFrom"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chess/ChessListener.mm"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "465"
+            endingLineNumber = "465"
+            landmarkName = "CLMoveGenerator::TryMove(piece, from, to)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

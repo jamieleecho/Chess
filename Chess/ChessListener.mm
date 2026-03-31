@@ -9,6 +9,11 @@
 
 #include "ChessListener.h"
 
+
+NSRegularExpression *undoRegex = [NSRegularExpression regularExpressionWithPattern:@"^take back move$" options:0 error:nil]; // https://regex101.com/r/nBtm0F/1
+NSRegularExpression *typicalMoveRegex = [NSRegularExpression regularExpressionWithPattern:@"^([a-z]+) ([a-h]) ([1-8]) (to|takes) ([a-h]) ([1-8])$" options:0 error:nil]; // https://regex101.com/r/PQOk1B/1
+
+
 /*
  * Copied from gnuglue.h
  */
@@ -458,7 +463,7 @@ bool CLMoveGenerator::TryMove(int piece, const CLCoord & from, const CLCoord & t
 	int pieceMask = 1 << piece;
 	
 	if (fOmitFrom) {
-		// 
+		//
 		// Simplify language model
 		//
 		if (fTargetAmbiguous[coord] & pieceMask) // Amiguous move, don't do it
@@ -588,8 +593,21 @@ static CLMoveGenerator *	gGenerator;
 
 @implementation ChessListenerDelegate
 - (void)speechRecognizer:(NSSpeechRecognizer *)sender didRecognizeCommand:(NSString *)command NS_SWIFT_UI_ACTOR {
-    NSArray *items = [command componentsSeparatedByString:@" "];
-    NSLog(@"%@", items);
+    if ([undoRegex numberOfMatchesInString:command options:0 range:NSMakeRange(0, command.length)] > 0) {
+        char refCon[5];
+        refCon[0] = -1;
+        CL_MakeMove(refCon);
+    } else if ([typicalMoveRegex numberOfMatchesInString:command options:0 range:NSMakeRange(0, command.length)] > 0) {
+        char refCon[5];
+        NSTextCheckingResult  * _Nullable match = [typicalMoveRegex firstMatchInString:command options:0 range:NSMakeRange(0, command.length)];
+        refCon[0] = (char)[[command substringWithRange:[match rangeAtIndex:2]] characterAtIndex:0];
+        refCon[1] = (char)[[command substringWithRange:[match rangeAtIndex:3]] characterAtIndex:0];
+        refCon[2] = (char)[[command substringWithRange:[match rangeAtIndex:5]] characterAtIndex:0];
+        refCon[3] = (char)[[command substringWithRange:[match rangeAtIndex:6]] characterAtIndex:0];
+        CL_MakeMove(refCon);
+    } else {
+        NSLog(@"Unknown command!");
+    }
 }
 @end
 
