@@ -9,6 +9,7 @@
 #import "Clock.h"	// not used
 #import "ResponseMeter.h"
 #import "ChessListener.h"
+#import "MovingPieceStateMachine.h"
 
 // portability layer
 #import "gnuglue.h"
@@ -813,13 +814,20 @@ void CL_MakeMove(const char * move)
     chess_debug( (@">>> computer move time %d move %@", move_time(), move) );
 
     dirtyGame = YES;
+
+    NSTimeInterval blinkDur = [HighlightedSquareStateMachine blinkDuration];
+    // Lead the dest blink slightly — the target square starts announcing
+    // itself just before the piece lands on it.
+    NSTimeInterval destLead = 0.125;
+
     [gameBoard highlightSquareAt: row1 : col1];
-    [gameBoard slidePieceFrom: row1 : col1 to: row2 : col2];
+    [gameBoard animatePieceFrom: row1 : col1 to: row2 : col2
+                     afterDelay: 0.0];
     [self storePosition: row2 : col2];
     [gameBoard layoutBoard: pieces color: colors];
-	//  [gameBoard display];
     PSWait();
-    [gameBoard highlightSquareAt: row2 : col2];
+    [gameBoard highlightSquareAt: row2 : col2
+                      afterDelay: blinkDur - destLead];
     return;
 }
 
@@ -840,6 +848,12 @@ void CL_MakeMove(const char * move)
 - (void)highlightSquareAt: (int)row : (int)col
 {
     [gameBoard highlightSquareAt: row : col];
+    return;
+}
+
+- (void)highlightSquareAt: (int)row : (int)col afterDelay: (NSTimeInterval)delay
+{
+    [gameBoard highlightSquareAt: row : col afterDelay: delay];
     return;
 }
 

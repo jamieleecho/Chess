@@ -1,10 +1,10 @@
-#import <AppKit/NSControl.h>
+#import "BaseBoard.h"
 
 @class NSImage;
 @class Square3D;
 
 IB_DESIGNABLE
-@interface Board3D : NSControl
+@interface Board3D : BaseBoard
 {
     NSImage 	*_background;
     NSImage 	*_pieces;
@@ -28,10 +28,6 @@ IB_DESIGNABLE
 
 - (int) pieceAt: (int)row : (int)col;
 - (int) colorAt: (int)row : (int)col;
-
-- (void) highlightSquareAt: (int)row : (int) col;
-- (void) unhighlightSquareAt: (int)row : (int) col;
-- (void) flashSquareAt: (int)row : (int) col;
 
 - (void) drawRows: (int)row from: (int)col;
 

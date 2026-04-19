@@ -78,6 +78,29 @@ short  p;
     return self;
 }
 
+- (void)animatePieceFrom:(int)fromRow :(int)fromCol
+                      to:(int)toRow   :(int)toCol
+              afterDelay:(NSTimeInterval)delay
+{
+    NSString *icon = [square[fromRow][fromCol] imageName];
+    if ([icon isEqual:@""]) icon = nil;
+    if (!icon) return;
+    NSString *capIcon = [square[toRow][toCol] imageName];
+    if ([capIcon isEqual:@""]) capIcon = nil;
+    MovingPieceStateMachine *mp =
+        [[MovingPieceStateMachine alloc] initFromRow:fromRow column:fromCol
+                                               toRow:toRow   column:toCol
+                                            iconName:icon
+                                           pieceType:0
+                                          pieceColor:0
+                                    capturedIconName:capIcon
+                                   capturedPieceType:0
+                                  capturedPieceColor:0
+                                          afterDelay:delay];
+    [self enqueueMovingPiece:mp];
+    [mp release];
+}
+
 
 - (void)commonInit
 {
@@ -234,39 +257,6 @@ short  p;
     return (int)NO_PIECE;
 }
 
-- (void) highlightSquareAt: (int)row : (int)col
-{
-    NSRect  cr;
-    Square  *theSquare = square[row][col];
-
-    [self lockFocus];
-    cr.size.width  = [self frame].size.width  / 8.0;
-    cr.size.height = [self frame].size.height / 8.0;
-    cr.origin.x = col * cr.size.width;
-    cr.origin.y = row * cr.size.height;
-
-    [theSquare highlight: cr inView: self];
-
-    PSsetgray( NSBlack );
-    PSsetlinewidth( (float)2.0 );
-    PSclippath();
-    PSstroke();
-    [[self window] flushWindow];
-
-    [self unlockFocus];
-    return;
-}
-    
-- (void) unhighlightSquareAt: (int)row : (int)col
-{
-    return;
-}
-    
-- (void) flashSquareAt: (int)row : (int)col
-{
-    return;
-}
-
 - (void) print: (id)sender
 {
     NSPrintInfo	*pi = [NSPrintInfo sharedPrintInfo];
@@ -299,12 +289,28 @@ short  p;
 	PSgsave();
 	cr.size.width  = self.frame.size.width  / 8.0;
 	cr.size.height = self.frame.size.height / 8.0;
+	int dR = [self isDragging] ? [self draggedRow]    : -1;
+	int dC = [self isDragging] ? [self draggedColumn] : -1;
+	NSArray *moving = [self activeMovingPieces];
 	for( r = 0; r < 8; r++ ) {
 	    cr.origin.y = r * cr.size.height;
 	    for( c = 0; c < 8; c++ ) {
 		Square  *theSquare = square[r][c];
 		cr.origin.x = c * cr.size.width;
-		[theSquare drawWithFrame: cr inView: self];
+		BOOL skip = (r == dR && c == dC);
+		if (!skip) {
+		    for (MovingPieceStateMachine *mp in moving) {
+			if ((r == [mp fromRow] && c == [mp fromColumn]) ||
+			    (r == [mp toRow]   && c == [mp toColumn])) {
+			    skip = YES; break;
+			}
+		    }
+		}
+		if (skip) {
+		    [theSquare drawBackground: cr inView: self];
+		} else {
+		    [theSquare drawWithFrame: cr inView: self];
+		}
 	    }
 	}
 	PSsetgray( NSBlack );
@@ -312,6 +318,86 @@ short  p;
 	PSclippath();
 	PSstroke();
 	PSgrestore();
+
+	float hw = self.frame.size.width  / 8.0;
+	float hh = self.frame.size.height / 8.0;
+	for (HighlightedSquareStateMachine *h in [self activeHighlights]) {
+	    if (!h.isHighlighted) continue;
+	    NSRect hr = NSInsetRect(NSMakeRect(h.column * hw, h.row * hh, hw, hh), 2.0, 2.0);
+	    [[NSColor whiteColor] set];
+	    NSBezierPath *hp = [NSBezierPath bezierPathWithRect:hr];
+	    [hp setLineWidth:4.0];
+	    [hp stroke];
+	}
+
+	for (MovingPieceStateMachine *mp in moving) {
+	    // Captured piece (if any) stays visible at dest until the
+	    // animation completes — drawn before the attacker so the
+	    // attacker covers it as it arrives.
+	    NSString *capIcon = [mp capturedIconName];
+	    if (capIcon && ![capIcon isEqual:@""]) {
+		NSImage *capImg = [NSImage imageNamed:capIcon];
+		if (capImg) {
+		    float cx = (float)[mp toColumn] * hw;
+		    float cy = (float)[mp toRow]    * hh;
+		    NSSize csz = [capImg size];
+		    NSPoint co;
+		    co.x = floor((hw - csz.width)  / 2.0 + cx);
+		    co.y = floor((hh - csz.height) / 2.0 + cy);
+		    [capImg drawAtPoint: co
+			       fromRect: NSZeroRect
+			      operation: NSCompositingOperationSourceOver
+			       fraction: 1.0];
+		}
+	    }
+
+	    NSString *icon = [mp iconName];
+	    if (!icon || [icon isEqual:@""]) continue;
+	    NSImage *img = [NSImage imageNamed:icon];
+	    if (!img) continue;
+	    double p = [mp progress];
+	    float srcX = (float)[mp fromColumn] * hw;
+	    float srcY = (float)[mp fromRow]    * hh;
+	    float dstX = (float)[mp toColumn]   * hw;
+	    float dstY = (float)[mp toRow]      * hh;
+	    float px = srcX + (float)(p * (dstX - srcX));
+	    float py = srcY + (float)(p * (dstY - srcY));
+	    NSSize sz = [img size];
+	    NSPoint origin;
+	    origin.x = floor((hw - sz.width)  / 2.0 + px);
+	    origin.y = floor((hh - sz.height) / 2.0 + py);
+	    [img drawAtPoint: origin
+		    fromRect: NSZeroRect
+		   operation: NSCompositingOperationSourceOver
+		    fraction: 1.0];
+	}
+
+	if ([self isDragging]) {
+	    NSPoint dp  = [self dragPoint];
+	    int dropR = floor_value((double)(dp.y / hh));
+	    int dropC = floor_value((double)(dp.x / hw));
+	    if (dropR >= 0 && dropR < 8 && dropC >= 0 && dropC < 8) {
+		NSRect dr = NSInsetRect(NSMakeRect(dropC * hw, dropR * hh, hw, hh), 2.0, 2.0);
+		[[NSColor whiteColor] set];
+		NSBezierPath *dp2 = [NSBezierPath bezierPathWithRect:dr];
+		[dp2 setLineWidth:4.0];
+		[dp2 stroke];
+	    }
+
+	    Square *ds = square[dR][dC];
+	    NSImage *img = [ds image];
+	    if (img) {
+		NSPoint off = [self dragOffset];
+		NSSize sz = [img size];
+		NSPoint imgOrigin;
+		imgOrigin.x = floor((hw - sz.width)  / 2.0 + dp.x - off.x);
+		imgOrigin.y = floor((hh - sz.height) / 2.0 + dp.y - off.y);
+		[img drawAtPoint: imgOrigin
+			fromRect: NSZeroRect
+		       operation: NSCompositingOperationSourceOver
+			fraction: 1.0];
+	    }
+	}
     }
     else {
 	[printImage draw];
@@ -319,147 +405,52 @@ short  p;
     return;
 }
 
-- (void) mouseDown: (NSEvent *)event 
+- (void) mouseDown: (NSEvent *)event
 {
-    NSException	 *exception = nil;
+    if ([NSApp bothsides]) { NSBeep(); return; }
+    if ([NSApp finished])  { [NSApp finishedAlert]; return; }
+    if (![self isEnabled]) return;
 
-    if ( [NSApp bothsides] ) {
-	NSBeep();
-    }
-    else if( [NSApp finished] ) {
-	[NSApp finishedAlert];
-	[[self window] setAcceptsMouseMovedEvents: YES];
+    float cw = self.frame.size.width  / 8.0;
+    float ch = self.frame.size.height / 8.0;
+    NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
+    int r = floor_value((double)(p.y / ch));
+    int c = floor_value((double)(p.x / cw));
+    if (r < 0 || r > 7 || c < 0 || c > 7) return;
 
-      NS_DURING
-	while( [event type] != NSLeftMouseUp ) {
-	    unsigned int mask = (NSLeftMouseUpMask | NSLeftMouseDraggedMask);
-	    event = [[self window] nextEventMatchingMask: mask];
+    Square *theSquare = square[r][c];
+    NSString *icon = [theSquare imageName];
+    if ([icon isEqual:@""] || !icon) return;
+
+    NSPoint offset = NSMakePoint(p.x - (float)c * cw, p.y - (float)r * ch);
+    [self beginDragFromRow:r column:c cursorPoint:p offset:offset];
+
+    NSException *exception = nil;
+    NS_DURING
+	while ([event type] != NSEventTypeLeftMouseUp) {
+	    NSEventMask mask = NSEventMaskLeftMouseUp | NSEventMaskLeftMouseDragged;
+	    event = [[self window] nextEventMatchingMask:mask];
+	    p = [self convertPoint:[event locationInWindow] fromView:nil];
+	    [self updateDragPoint:p];
 	}
-      NS_HANDLER
+    NS_HANDLER
 	exception = localException;
-      NS_ENDHANDLER
-    }
+    NS_ENDHANDLER
 
-    else {
-	NSPoint  pickedP, backP, roundedBackP, winP;
-	NSRect  pieceRect, backR;
-	int  r, c;
-	Square  *theSquare;
-	int  controlGState;
-	NSString  *icon;
-        NSPoint  p;
+    int r2 = floor_value((double)(p.y / ch));
+    int c2 = floor_value((double)(p.x / cw));
+    [self endDrag];
 
-	pickedP = [event locationInWindow];
-	pickedP = [self convertPoint: pickedP fromView: nil];
-	backP = pickedP;
-	//pieceRect.origin = NSZeroPoint;
-	pieceRect.size.width  = [self frame].size.width  / 8.0;
-	pieceRect.size.height = [self frame].size.height / 8.0;
-	r = floor_value( (double)(pickedP.y / pieceRect.size.height) ); 
-	c = floor_value( (double)(pickedP.x / pieceRect.size.width)  );
-	pieceRect.size.width =(float)floor_value((double)pieceRect.size.width);
-	pieceRect.size.height=(float)floor_value((double)pieceRect.size.height); 
-	backR.origin = NSZeroPoint;
-	backR.size   = pieceRect.size;
-	pickedP.x = pickedP.x - (((float)c) * pieceRect.size.width);
-	pickedP.y = pickedP.y - (((float)r) * pieceRect.size.height);
-	theSquare = square[r][c];
-	//icon = [[theSquare image] name];
-        icon = [theSquare imageName];
-	if( [icon isEqual: @""] )
-	    icon = nil;		// ?
-	if( icon && [self isEnabled] ) {
-	    controlGState = [self gState];
-	    if( ! controlGState ) {
-		[self allocateGState];
-		controlGState = [self gState];
-	    }
-	    [self lockFocus];
-	    PSgsave();
-
-	    /* Draw over the piece we are moving. */
-	    pieceRect.origin.x = c * pieceRect.size.width;
-	    pieceRect.origin.y = r * pieceRect.size.height;
-	    [theSquare drawBackground: pieceRect inView: self];
-
-	    /* Save background */ 
-	    [backBitmap lockFocus];
-	    PSgsave();
-		roundedBackP.x = floor(backP.x); 
-		roundedBackP.y = floor(backP.y);
-		winP = [[self superview] convertPoint: roundedBackP fromView: self];
-	    PScomposite( winP.x, winP.y, backR.size.width, backR.size.height,
-	      controlGState, (float)0.0, (float)0.0, NSCompositeCopy );
-	    PSgrestore();
-	    [backBitmap unlockFocus];
-	} 
-    
-	[[self window] setAcceptsMouseMovedEvents: YES];
-
-      NS_DURING
-	while ([event type] != NSLeftMouseUp) {
-	    unsigned int mask = (NSLeftMouseUpMask | NSLeftMouseDraggedMask);
-	    event = [[self window] nextEventMatchingMask: mask];
-
-	    p = [event locationInWindow];
-	    p = [self convertPoint: p fromView: nil];
-
-	    if( icon && [self isEnabled] ) {
-		/* Restore old background */
-            controlGState = [self gState];
-		[self lockFocus];
-        NSRect r = NSMakeRect(0, 0, backBitmap.size.width, backBitmap.size.height);
-        [backBitmap drawAtPoint:roundedBackP fromRect:r operation:NSCompositingOperationCopy fraction:1.0];
-		[self unlockFocus];
-
-		/* Save new background */
-        backP.x = pieceRect.origin.x = p.x - pickedP.x;
-		backP.y = pieceRect.origin.y = p.y - pickedP.y;
-		[backBitmap lockFocus];
-		PSgsave();
-		roundedBackP.x = floor(backP.x); 
-		roundedBackP.y = floor(backP.y);
-		winP = [[self superview] convertPoint: roundedBackP fromView: self];
-		PScomposite( winP.x, winP.y, backR.size.width,
-					 backR.size.height, controlGState, (float)0.0,
-					 (float)0.0, NSCompositeCopy );
-		PSgrestore();
-		[backBitmap unlockFocus];
-
-		/* Draw piece at new location. */
-        [self lockFocus];
-            
-		[theSquare drawInteriorWithFrame: pieceRect inView: self];
-        [self unlockFocus];
-
-		PSsetgray( NSBlack );
-		PSsetlinewidth( (float)2.0 );
-		PSclippath();
-		PSstroke();
-		[self.window flushWindow];
+    if (r2 != r || c2 != c) {
+	if (r2 >= 0 && r2 < 8 && c2 >= 0 && c2 < 8) {
+	    if (![NSApp makeMoveFrom:r :c to:r2 :c2]) {
+		PSWait();
 	    }
 	}
-      NS_HANDLER
-	exception = localException;
-      NS_ENDHANDLER
-
-	if( icon && [self isEnabled] ) {
-	    NSSize  frame = [self frame].size;
-	    int  r2 = floor_value( (double)(p.y / (frame.height / 8.0)) ); 
-	    int  c2 = floor_value( (double)(p.x / (frame.width  / 8.0)) );
-	    if( r2 != r || c2 != c ) {
-		if( ! [NSApp makeMoveFrom: r : c to: r2 : c2] ) {
-		    PSWait();
-		}
-            }
-            [self display]; 
-	    PSgrestore();
-	    [self unlockFocus];
-	}
     }
+    [self display];
 
-    if( exception )
-	[exception raise];
+    if (exception) [exception raise];
     return;
 }
 

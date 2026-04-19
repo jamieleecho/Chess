@@ -17,6 +17,7 @@
 
 /* Application */
 #import "Chess.h"	// NSApp
+#import "HighlightedSquareStateMachine.h"
 
 /* UNIX/C functions */
 #import <stdio.h>	// fopen, fclose, fprintf, fscanf
@@ -785,7 +786,8 @@ int give_hint ()
 	NSLog( @"hint: %@", computerMove() );
 #endif
 	[NSApp highlightSquareAt: (int)(from / 8) : (int)(from % 8)];
-	[NSApp highlightSquareAt: (int)(to   / 8) : (int)(to   % 8)];
+	[NSApp highlightSquareAt: (int)(to   / 8) : (int)(to   % 8)
+		      afterDelay: [HighlightedSquareStateMachine delayForNextInSequence]];
     }
     return (int) hint;
 }

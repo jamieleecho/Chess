@@ -186,6 +186,7 @@ void PSashow(float w, float h, const char *s);
 - (void)updateBoard;
 - (int)pieceTypeAt: (int)row : (int)col;
 - (void)highlightSquareAt: (int)row : (int)col;
+- (void)highlightSquareAt: (int)row : (int)col afterDelay: (NSTimeInterval)delay;
 - (void)displayResponseMeter: (int)side;
 - (void)fillResponseMeter: (int)side;
 - (void)setTitleMessage: (NSString *)msg;

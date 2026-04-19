@@ -1,10 +1,10 @@
-#import <AppKit/NSControl.h>
+#import "BaseBoard.h"
 
 @class Square;
 @class NSImage;
 
 IB_DESIGNABLE
-@interface Board : NSControl
+@interface Board : BaseBoard
 {
     NSImage	*backBitmap;
     Square	*square[8][8];
@@ -21,9 +21,5 @@ IB_DESIGNABLE
 
 - (int) pieceAt: (int)row : (int)col;
 //- (int) colorAt: (int)row : (int)col;
-
-- (void) highlightSquareAt: (int)row : (int)col;
-- (void) unhighlightSquareAt: (int)row : (int) col;
-- (void) flashSquareAt: (int)row : (int)col;
 
 @end
