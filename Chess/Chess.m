@@ -66,9 +66,9 @@ void CL_MakeMove(const char * move)
 
 	defaults = [NSUserDefaults standardUserDefaults];
 
-	[defaults registerDefaults: 
+	[defaults registerDefaults:
 				  [NSDictionary dictionaryWithObjectsAndKeys:
-									@"0 0 0 1", @"WhiteColor",
+                                @"0 0 0 1", @"WhiteColor",
 								@"0 0 0 1", @"BlackColor",
 								[self.levelSlider objectValue], @"Level",
 								@"NO", @"BothSides",
@@ -86,7 +86,7 @@ void CL_MakeMove(const char * move)
 	[scanner scanFloat:&blue];
 	[scanner scanFloat:&alpha];
     white_color = [[NSColor colorWithCalibratedRed:red green:green blue:blue alpha:1.0] retain];
-	[whiteColorWell setColor:white_color];
+	[self.whiteColorWell setColor:white_color];
 
 	scanner = [NSScanner scannerWithString:[defaults objectForKey:@"BlackColor"]];
 	[scanner scanFloat:&red];
@@ -94,7 +94,7 @@ void CL_MakeMove(const char * move)
 	[scanner scanFloat:&blue];
 	[scanner scanFloat:&alpha];
     black_color = [[NSColor colorWithCalibratedRed:red green:green blue:blue alpha:1.0] retain];
-	[blackColorWell setColor:black_color];
+	[self.blackColorWell setColor:black_color];
 
 	[self.levelSlider setIntValue:[defaults integerForKey:@"Level"]];
     [self levelSliding:self.levelSlider];
@@ -173,9 +173,9 @@ void CL_MakeMove(const char * move)
     [self displayResponseMeter: BLACK];
 
     if( prefs.bothsides )
-		[startButton setEnabled: YES];
+		[self.startButton setEnabled: YES];
     else {
-		[startButton setEnabled: NO];
+		[self.startButton setEnabled: NO];
 		if( prefs.computer == WHITE )
 			[self selectMove: WHITE iop: 1];
         else if (prefs.useSR)
@@ -376,30 +376,30 @@ void CL_MakeMove(const char * move)
 
     path   = [[NSBundle mainBundle] pathForImageResource: @"3d_white_sample"];
     image1 = [[NSImage alloc] initWithContentsOfFile: path];
-    image2 = [whiteSample image];
+    image2 = [self.whiteSample image];
     r.origin = NSZeroPoint;
     r.size   = [image2 size];
     pt = NSZeroPoint;
 
     [image2 lockFocus];
-    [image1 compositeToPoint: pt fromRect: r operation: NSCompositeCopy];
+    [image1 compositeToPoint: pt fromRect: r operation: NSCompositingOperationCopy];
     [image2 unlockFocus];
 
     [image1 lockFocus];
-    [[whiteColorWell color] set];
+    [[self.whiteColorWell color] set];
     PScompositerect( pt.x, pt.y,
-					 r.size.width, r.size.height, NSCompositePlusDarker );
+					 r.size.width, r.size.height, NSCompositingOperationColor );
     [image1 unlockFocus];
 
     [image2 lockFocus];
-    [image1 compositeToPoint: pt fromRect: r operation: NSCompositeSourceAtop];
+    [image1 compositeToPoint: pt fromRect: r operation: NSCompositingOperationSourceAtop];
     [image2 unlockFocus];
 
-    [whiteSample display];
+    [self.whiteSample display];
     [image1 release];
 
-    if( ! [white_color isEqual: [whiteColorWell color]] )
-		[colorSetButton setEnabled: YES];
+    if( ! [white_color isEqual: [self.whiteColorWell color]] )
+		[self.colorSetButton setEnabled: YES];
     return;
 }
 
@@ -413,30 +413,31 @@ void CL_MakeMove(const char * move)
 
     path   = [[NSBundle mainBundle] pathForImageResource: @"3d_black_sample"];
     image1 = [[NSImage alloc] initWithContentsOfFile: path];
-    image2 = [blackSample image];
+    image2 = [self.blackSample image];
     r.origin = NSZeroPoint;
     r.size   = [image2 size];
     pt = NSZeroPoint;
 
     [image2 lockFocus];
-    [image1 compositeToPoint: pt fromRect: r operation: NSCompositeCopy];
+    [image1 compositeToPoint: pt fromRect: r operation: NSCompositingOperationCopy];
     [image2 unlockFocus];
 
     [image1 lockFocus];
-    [[blackColorWell color] set];
+    [[self.blackColorWell color] set];
     PScompositerect( pt.x, pt.y,
-					 r.size.width, r.size.height, NSCompositePlusDarker );
+                     r.size.width, r.size.height, NSCompositingOperationColor );
     [image1 unlockFocus];
 
     [image2 lockFocus];
-    [image1 compositeToPoint: pt fromRect: r operation: NSCompositeSourceAtop];
+    [image1 compositeToPoint: pt fromRect: r operation: NSCompositingOperationSourceAtop];
     [image2 unlockFocus];
 
-    [blackSample display];
+    self.blackSample.image = image2;
+    [self.blackSample display];
     [image1 release];
 
-    if( ! [black_color isEqual: [blackColorWell color]] )
-		[colorSetButton setEnabled: YES];
+    if( ! [black_color isEqual: [self.blackColorWell color]] )
+		[self.colorSetButton setEnabled: YES];
     return;
 }
 
@@ -458,42 +459,43 @@ void CL_MakeMove(const char * move)
     r.size   = [image2 size];
     pt = NSZeroPoint;
 
-    if( ! [white_color isEqual: [whiteColorWell color]] ) {
-		float red, green, blue, alpha;		
+    if( ! [white_color isEqual: [self.whiteColorWell color]] ) {
+		CGFloat red, green, blue, alpha;
 		[white_color release];
-		white_color = [[whiteColorWell color] retain];
+		white_color = [[self.whiteColorWell color] retain];
 		[white_color getRed:&red green:&green blue:&blue alpha:&alpha];
 		[defaults setObject:[NSString stringWithFormat:@"%1.3f %1.3f %1.3f %1.3f", red, green, blue, alpha] forKey:@"WhiteColor"];
     }
-    if( ! [black_color isEqual: [blackColorWell color]] ) {
-		float red, green, blue, alpha;		
+    if( ! [black_color isEqual: [self.blackColorWell color]] ) {
+        CGFloat red, green, blue, alpha;		
 		[black_color release];
-		black_color = [[blackColorWell color] retain];
+		black_color = [[self.blackColorWell color] retain];
 		[black_color getRed:&red green:&green blue:&blue alpha:&alpha];
 		[defaults setObject:[NSString stringWithFormat:@"%1.3f %1.3f %1.3f %1.3f", red, green, blue, alpha] forKey:@"BlackColor"];
     }
 
     [image2 lockFocus];
-    [image1 compositeToPoint: pt fromRect: r operation: NSCompositeCopy];
+    [image1 drawInRect: r fromRect: r operation: NSCompositingOperationCopy fraction:1.0f];
     [image2 unlockFocus];
 
     [image1 lockFocus];
     [white_color set];
     PScompositerect( pt.x, pt.y,
-					 (float)336.0, r.size.height, NSCompositePlusDarker );
+					 (float)336.0, r.size.height, NSCompositingOperationColor);
     [black_color set];
     PScompositerect( (float)336.0, pt.y,
-					 (float)336.0, r.size.height, NSCompositePlusDarker );
+					 (float)336.0, r.size.height, NSCompositingOperationColor);
     [image1 unlockFocus];
 
     [image2 lockFocus];
-    [image1 compositeToPoint: pt fromRect: r operation: NSCompositeSourceAtop];
+    
+    [image1 drawInRect: r fromRect: r operation: NSCompositingOperationSourceAtop fraction:1.0f];
     [image2 unlockFocus];
 
     [gameBoard display];
     [image1 release];
 
-    [colorSetButton setEnabled: NO];
+    [self.colorSetButton setEnabled: NO];
     return;
 }
 
@@ -632,12 +634,12 @@ void CL_MakeMove(const char * move)
     if( ! [prefs.white_name isEqual: [self.whiteSideName stringValue]] ) {
 		[prefs.white_name release];
 		prefs.white_name = [[self.whiteSideName stringValue] retain];
-		[whiteClockText setStringValue: prefs.white_name];
+		[self.whiteClockText setStringValue: prefs.white_name];
     }
     if( ! [prefs.black_name isEqual: [self.blackSideName stringValue]] ) {
 		[prefs.black_name release];
 		prefs.black_name = [[self.blackSideName stringValue] retain];
-		[blackClockText setStringValue: prefs.black_name];
+		[self.blackClockText setStringValue: prefs.black_name];
     }
 
     set_preferences( &prefs );
@@ -660,9 +662,9 @@ void CL_MakeMove(const char * move)
         [self newGame: self];
     } else {
 		if( prefs.bothsides )
-			[startButton setEnabled: YES];
+			[self.startButton setEnabled: YES];
 		else {
-			[startButton setEnabled: NO];
+			[self.startButton setEnabled: NO];
 			if( current_player() == WHITE && prefs.computer == WHITE )
 				[self selectMove: WHITE iop: 1];
 			else if( current_player() == BLACK && prefs.computer == BLACK )
@@ -767,7 +769,7 @@ void CL_MakeMove(const char * move)
     [self disablePrefPanel];
     [self disableClockPanel];
     [gameBoard setEnabled: NO];
-    [forceButton setEnabled: YES];
+    [self.forceButton setEnabled: YES];
 	if (prefs.useSR)
 		CL_DontListen();
     PSWait();
@@ -783,11 +785,15 @@ void CL_MakeMove(const char * move)
     in_check();
     PSWait();
 
-    [forceButton setEnabled: NO];
+    [self.forceButton setEnabled: NO];
     [gameBoard setEnabled: YES];
     [self enableClockPanel];
     [self enablePrefPanel];
     [self setMainMenuEnabled: YES];
+
+    reset_response_time();
+    [self displayResponseMeter: WHITE];
+    [self displayResponseMeter: BLACK];
 
 	if (prefs.useSR)
 		CL_Listen(!side, current_pieces(), current_colors());
@@ -798,7 +804,12 @@ void CL_MakeMove(const char * move)
 - (void)setFinished: (int)flag
 {
     finished = flag;
-    [self finishedAlert];
+    if( flag == 0 )  return;
+    NSTimeInterval delay = 2 * [MovingPieceStateMachine animationDuration];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
+        [self finishedAlert];
+    });
     return;
 }
 
@@ -861,9 +872,9 @@ void CL_MakeMove(const char * move)
 {
     if( [self.clockPanel isVisible] ) {
 		if( side == WHITE )
-			[whiteMeter display];
+			[self.whiteMeter display];
 		else
-			[blackMeter display];
+			[self.blackMeter display];
 		PSWait();
     }
     return;
@@ -873,9 +884,9 @@ void CL_MakeMove(const char * move)
 {
     if( [self.clockPanel isVisible] ) {
 		if( side == WHITE )
-			[whiteMeter displayFilled];
+			[self.whiteMeter displayFilled];
 		else
-			[blackMeter displayFilled];
+			[self.blackMeter displayFilled];
 		PSWait();
     }
     return;
@@ -983,11 +994,11 @@ void CL_MakeMove(const char * move)
 - (void)enableClockPanel
 {
     if( gameBoard == self.board3D ) {
-		[whiteColorWell setEnabled: YES];
-		[blackColorWell setEnabled: YES];
-		if( ! [white_color isEqual: [whiteColorWell color]] ||
-			! [black_color isEqual: [blackColorWell color]] ) {
-			[colorSetButton setEnabled: YES];
+		[self.whiteColorWell setEnabled: YES];
+		[self.blackColorWell setEnabled: YES];
+		if( ! [white_color isEqual: [self.whiteColorWell color]] ||
+			! [black_color isEqual: [self.blackColorWell color]] ) {
+			[self.colorSetButton setEnabled: YES];
 		}
     }
     return;
@@ -995,9 +1006,9 @@ void CL_MakeMove(const char * move)
 
 - (void)disableClockPanel
 {
-    [whiteColorWell setEnabled: NO];
-    [blackColorWell setEnabled: NO];
-    [colorSetButton setEnabled: NO];
+    [self.whiteColorWell setEnabled: NO];
+    [self.blackColorWell setEnabled: NO];
+    [self.colorSetButton setEnabled: NO];
     return;
 }
 
@@ -1013,20 +1024,20 @@ void CL_MakeMove(const char * move)
 
 - (void)updateClocks: (int)side
 {
-    if( ! blackClock || ! whiteClock )
+    if( ! self.blackClock || ! self.whiteClock )
 		return;
     if( side == WHITE ) {
 		whiteTime += move_time();
 		if( [self.clockPanel isVisible] ) {
-			[whiteClock setSeconds: whiteTime];
-			[whiteClock display];
+			[self.whiteClock setSeconds: whiteTime];
+			[self.whiteClock display];
 		}
     }
     else {
 		blackTime += move_time();
 		if( [self.clockPanel isVisible] ) {
-			[blackClock setSeconds: blackTime];
-			[blackClock display];
+			[self.blackClock setSeconds: blackTime];
+			[self.blackClock display];
 		}
     }
     return;

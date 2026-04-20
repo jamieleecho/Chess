@@ -4,6 +4,8 @@
 @class NSColor;
 @class Board;
 @class Board3D;
+@class Clock;
+@class ResponseMeter;
 
 // Preferences structure
 struct Preferences {
@@ -73,21 +75,6 @@ void PSashow(float w, float h, const char *s);
 
 @interface Chess : NSApplication
 {
-// ClockPanel
-    id  whiteSample;
-    id  whiteClockText;
-    id  whiteClock;		// no connection
-    id  whiteColorWell;
-    id  whiteMeter;
-    id  blackSample;
-    id  blackClockText;
-    id  blackClock;		// no connection
-    id  blackColorWell;
-    id  blackMeter;
-    id  colorSetButton;
-    id  startButton;
-    id  forceButton;
-
 // game board
     NSControl  *gameBoard;		// board2D or board3D
     int  currentRow;
@@ -142,6 +129,21 @@ void PSashow(float w, float h, const char *s);
 
 // InfoPanel
 @property (nonatomic, weak) IBOutlet NSScrollView *infoScroll;
+
+// ClockPanel
+@property (nonatomic, weak) IBOutlet NSImageView   *whiteSample;
+@property (nonatomic, weak) IBOutlet NSTextField   *whiteClockText;
+@property (nonatomic, weak) IBOutlet Clock         *whiteClock;
+@property (nonatomic, weak) IBOutlet NSColorWell   *whiteColorWell;
+@property (nonatomic, weak) IBOutlet ResponseMeter *whiteMeter;
+@property (nonatomic, weak) IBOutlet NSImageView   *blackSample;
+@property (nonatomic, weak) IBOutlet NSTextField   *blackClockText;
+@property (nonatomic, weak) IBOutlet Clock         *blackClock;
+@property (nonatomic, weak) IBOutlet NSColorWell   *blackColorWell;
+@property (nonatomic, weak) IBOutlet ResponseMeter *blackMeter;
+@property (nonatomic, weak) IBOutlet NSButton      *colorSetButton;
+@property (nonatomic, weak) IBOutlet NSButton      *startButton;
+@property (nonatomic, weak) IBOutlet NSButton      *forceButton;
 
 // MainMenu responders
 - (IBAction)info: (id)sender;

@@ -2,6 +2,6 @@
 
 @interface ResponseMeter : NSView
 
-- (void)displayFilled;
+- (IBAction)displayFilled;
 
 @end

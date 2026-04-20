@@ -29,6 +29,7 @@ void PScomposite(float x, float y, float w, float h, int gstateNum, float dx, fl
 
 
 void PScompositerect(float x, float y, float w, float h, int op) {
+    NSRectFillUsingOperation(NSMakeRect(x, y, w, h), (NSCompositingOperation)op);
 }
 
 

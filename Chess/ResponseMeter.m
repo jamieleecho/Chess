@@ -38,6 +38,8 @@
 {
     int res_time;
 
+    f = self.frame;
+    
     PSgsave();
     PSsetgray( (float)0.5 );
     PSrectfill(0.0, 0.0, f.size.width, f.size.height);
