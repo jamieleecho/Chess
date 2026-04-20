@@ -3,6 +3,7 @@
 #import <Foundation/NSObjCRuntime.h>
 
 @class NSString;
+struct Preferences;
 
 
 /*
@@ -41,67 +42,67 @@ enum {
 */
 
 /* invoked by gnuchess.c modules */
-extern void OutputMove();
-extern void SelectLevel();
-extern void UpdateClocks();
+extern void OutputMove(void);
+extern void SelectLevel(void);
+extern void UpdateClocks(void);
 extern void ElapsedTime( int ) ;
-extern void SetTimeControl();
+extern void SetTimeControl(void);
 extern void ShowResults( short, unsigned short [], char );
 extern void GameEnd( short );
-extern void ClrScreen();
+extern void ClrScreen(void);
 extern void UpdateDisplay( int, int, int, int );
-extern void GetOpenings();
+extern void GetOpenings(void);
 extern void ShowDepth( char );
 extern void ShowCurrentMove( short, short, short );
-extern void ShowSidetomove();
+extern void ShowSidetomove(void);
 extern void ShowMessage( const char * );
 extern void SearchStartStuff( short );
 
 /* invoked by Chess.app modules */
-extern void init_gnuchess();
-extern void new_game();
-extern void in_check();
+extern void init_gnuchess(void);
+extern void new_game(void);
+extern void in_check(void);
 
 extern void get_game ( NSString * );
 extern int  save_game( NSString * );
 extern int  list_game( NSString * );
 
-extern void undo_move();
-extern int  give_hint();
+extern void undo_move(void);
+extern int  give_hint(void);
 
 extern NSString *convert_rowcol( int, int, int, int, int );
 extern BOOL verify_move( NSString * );
 
 extern void select_move_start( int, int );
-extern void select_move_end();
-extern BOOL select_loop_end();
-extern void select_loop();
+extern void select_move_end(void);
+extern BOOL select_loop_end(void);
+extern void select_loop(void);
 
-extern void run_computer_game();
-extern void stop_computer_game();
-extern void select_computer_move();
+extern void run_computer_game(void);
+extern void stop_computer_game(void);
+extern void select_computer_move(void);
 
-extern int  current_player();
-extern int  game_count();
-extern int  move_time();
-extern int  response_time();
-extern void reset_response_time();
-extern int  elapsed_time();
-extern short *default_pieces();
-extern short *default_colors();
-extern short *current_pieces();
-extern short *current_colors();
+extern int  current_player(void);
+extern int  game_count(void);
+extern int  move_time(void);
+extern int  response_time(void);
+extern void reset_response_time(void);
+extern int  elapsed_time(void);
+extern short *default_pieces(void);
+extern short *default_colors(void);
+extern short *current_pieces(void);
+extern short *current_colors(void);
 
-extern int  game_level();
+extern int  game_level(void);
 extern void set_game_level( int );
 extern void interpret_level( int, int *, int * );
 
-extern void set_preferences();
+extern void set_preferences(struct Preferences *);
 
 extern void set_timeout( BOOL );
 extern void set_game_queen( int );
 
-extern NSString *copyright_text();
-extern NSString *user_fullname();
+extern NSString *copyright_text(void);
+extern NSString *user_fullname(void);
 extern void sleep_microsecs( unsigned );
 extern int  floor_value( double );

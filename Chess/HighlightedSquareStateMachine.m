@@ -32,11 +32,11 @@
     return SEQUENCE_GAP;
 }
 
-- (id)initWithRow:(int)row column:(int)column {
+- (instancetype)initWithRow:(int)row column:(int)column {
     return [self initWithRow:row column:column afterDelay:0.0];
 }
 
-- (id)initWithRow:(int)row column:(int)column afterDelay:(NSTimeInterval)delay {
+- (instancetype)initWithRow:(int)row column:(int)column afterDelay:(NSTimeInterval)delay {
     if (self = [super init]) {
         _row = row;
         _column = column;

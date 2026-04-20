@@ -13,12 +13,12 @@
 
 @implementation BaseBoard
 
-- (id)initWithCoder:(NSCoder *)coder {
+- (instancetype)initWithCoder:(NSCoder *)coder {
     if (self = [super initWithCoder:coder]) [self baseInit];
     return self;
 }
 
-- (id)initWithFrame:(NSRect)f {
+- (instancetype)initWithFrame:(NSRect)f {
     if (self = [super initWithFrame:f]) [self baseInit];
     return self;
 }

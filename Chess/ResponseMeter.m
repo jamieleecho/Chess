@@ -24,11 +24,11 @@
     [self lockFocus];
     PSgsave();
 
-    PSsetgray( NSWhite );
+    PSsetgray( 1.0 );
     PSrectfill(0.0, 0.0, f.size.width, f.size.height);
 
     PSsetlinewidth( (float)2.0 );
-    PSsetgray( NSBlack );
+    PSsetgray( 0.0 );
     PSrectstroke(0.0, 0.0, f.size.width, f.size.height);
 
     PSgrestore();
@@ -55,7 +55,7 @@
 	// per-move high-water mark so the bar only ever advances.
 	if( ratio < _maxRatio )  ratio = _maxRatio;
 	else                     _maxRatio = ratio;
-	PSsetgray( NSWhite );
+	PSsetgray( 1.0 );
 	PSrectfill( (float)0.0, (float)0.0,
 			(float)( f.size.width * ratio ), f.size.height );
     }
@@ -64,7 +64,7 @@
     }
 
     PSsetlinewidth( (float)2.0 );
-    PSsetgray( NSBlack );
+    PSsetgray( 0.0 );
     PSrectstroke(0.0, 0.0, f.size.width, f.size.height);
     PSgrestore();
 

@@ -27,8 +27,8 @@
 // (e.g. highlight → move → highlight).
 + (NSTimeInterval)sequenceGap;
 
-- (id)initWithRow:(int)row column:(int)column;
-- (id)initWithRow:(int)row column:(int)column afterDelay:(NSTimeInterval)delay;
+- (instancetype)initWithRow:(int)row column:(int)column;
+- (instancetype)initWithRow:(int)row column:(int)column afterDelay:(NSTimeInterval)delay;
 - (void)tick;
 
 @end

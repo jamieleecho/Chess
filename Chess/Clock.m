@@ -21,7 +21,7 @@ static void renderHand( float col, float len, int minute )
 
 @implementation Clock
 
-- (id)initWithFrame: (NSRect)theFrame
+- (instancetype)initWithFrame: (NSRect)theFrame
 {
     NSRect f;
     f.origin = theFrame.origin;

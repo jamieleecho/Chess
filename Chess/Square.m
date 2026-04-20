@@ -70,17 +70,17 @@
     f = NSInsetRect(f, (float)1.0 , (float)1.0);
     PSgsave();
     PSsetlinewidth( (float)2.0 );
-    PSsetgray( NSWhite );
+    PSsetgray( 1.0 );
     PSrectstroke ( f.origin.x, f.origin.y, f.size.width, f.size.height );
     PSWait();
     sleep_microsecs( (unsigned)15000 );
 
-    PSsetgray( NSBlack );
+    PSsetgray( 0.0 );
     PSrectstroke ( f.origin.x, f.origin.y, f.size.width, f.size.height );
     PSWait();
     sleep_microsecs( (unsigned)15000 );
 
-    PSsetgray( NSWhite );
+    PSsetgray( 1.0 );
     PSrectstroke ( f.origin.x, f.origin.y, f.size.width, f.size.height );
     PSWait();
     sleep_microsecs( (unsigned)15000 );
@@ -116,7 +116,7 @@
     s = [bitmap size];
     p.x = (float) floor_value( (double)(((r.size.width  - s.width)  / 2.0) + r.origin.x) );
     p.y = (float) floor_value( (double)(((r.size.height - s.height) / 2.0) + r.origin.y) );
-    [bitmap compositeToPoint: p operation: NSCompositeSourceOver];
+    [bitmap compositeToPoint: p operation: NSCompositingOperationSourceOver];
     return;
 }
 

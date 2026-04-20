@@ -67,15 +67,14 @@ void CL_MakeMove(const char * move)
 
 	defaults = [NSUserDefaults standardUserDefaults];
 
-	[defaults registerDefaults:
-				  [NSDictionary dictionaryWithObjectsAndKeys:
-                                @"0 0 0 1", @"WhiteColor",
-								@"0 0 0 1", @"BlackColor",
-								[self.levelSlider objectValue], @"Level",
-								@"NO", @"BothSides",
-								@"YES", @"PlayerHasWhite",
-								@"YES", @"SpeechRecognition",
-								NULL]];
+	[defaults registerDefaults: @{
+		@"WhiteColor"        : @"0 0 0 1",
+		@"BlackColor"        : @"0 0 0 1",
+		@"Level"             : [self.levelSlider objectValue],
+		@"BothSides"         : @"NO",
+		@"PlayerHasWhite"    : @"YES",
+		@"SpeechRecognition" : @"YES",
+	}];
 
     gameBoard = self.board3D;
 
@@ -192,7 +191,7 @@ void CL_MakeMove(const char * move)
     id  op = [NSOpenPanel openPanel];
     finished = 0;
     [op setRequiredFileType: @"chess"];
-    if( [op runModal] == NSOKButton ) {
+    if( [op runModal] == NSModalResponseOK ) {
 		filename = [op filename];
 		get_game( filename );
     }
@@ -207,7 +206,7 @@ void CL_MakeMove(const char * move)
 {
     NSSavePanel	*sp = [NSSavePanel savePanel];
     [sp setRequiredFileType: nil];
-    if( [sp runModal] == NSOKButton )
+    if( [sp runModal] == NSModalResponseOK )
 		list_game( [sp filename] );
     return;
 }
@@ -226,7 +225,7 @@ void CL_MakeMove(const char * move)
 {
     NSSavePanel	*sp = [NSSavePanel savePanel];
     [sp setRequiredFileType: @"chess"];
-    if( [sp runModal] == NSOKButton ) {
+    if( [sp runModal] == NSModalResponseOK ) {
 		filename = [sp filename];
 		save_game( filename );
     }
@@ -298,8 +297,8 @@ void CL_MakeMove(const char * move)
 
 - (void)view2D: (id)sender
 {
-	[self.menu2D setState: NSOnState];
-	[self.menu3D setState: NSOffState];
+	[self.menu2D setState: NSControlStateValueOn];
+	[self.menu3D setState: NSControlStateValueOff];
     if( gameBoard == self.board3D ) {
 		short  *pieces = current_pieces();
 		short  *colors = current_colors();
@@ -316,8 +315,8 @@ void CL_MakeMove(const char * move)
 
 - (void)view3D: (id)sender
 {
-	[self.menu2D setState: NSOffState];
-	[self.menu3D setState: NSOnState];
+	[self.menu2D setState: NSControlStateValueOff];
+	[self.menu3D setState: NSControlStateValueOn];
     if( gameBoard == self.board2D ) {
 		short  *pieces = current_pieces();
 		short  *colors = current_colors();
@@ -720,8 +719,8 @@ void CL_MakeMove(const char * move)
 - (void)peekAndGetLeftMouseDownEvent
 {
     NSEvent *event;
-    if( event = [NSApp nextEventMatchingMask: NSLeftMouseDownMask untilDate: [NSDate date] inMode: NSEventTrackingRunLoopMode dequeue: NO] ) {
-		event = [NSApp nextEventMatchingMask: NSLeftMouseDownMask untilDate: [NSDate date] inMode: NSEventTrackingRunLoopMode dequeue: YES];
+    if( event = [NSApp nextEventMatchingMask: NSEventMaskLeftMouseDown untilDate: [NSDate date] inMode: NSEventTrackingRunLoopMode dequeue: NO] ) {
+		event = [NSApp nextEventMatchingMask: NSEventMaskLeftMouseDown untilDate: [NSDate date] inMode: NSEventTrackingRunLoopMode dequeue: YES];
 		[NSApp sendEvent: event];
     }
     return;

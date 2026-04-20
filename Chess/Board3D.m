@@ -143,14 +143,14 @@ static void convert_point( NSPoint *p, int *r, int *c )
 
 @implementation Board3D
 
-- (id)initWithCoder:(NSCoder *)coder {
+- (instancetype)initWithCoder:(NSCoder *)coder {
     if (self = [super initWithCoder:coder]) {
         [self commonInit];
     }
     return self;
 }
 
-- (id)initWithFrame: (NSRect)f {
+- (instancetype)initWithFrame: (NSRect)f {
     if (self = [super initWithFrame:f]) {
         [self commonInit];
     }

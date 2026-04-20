@@ -16,7 +16,7 @@
 // Full animation duration (excluding any pre-delay).
 + (NSTimeInterval)animationDuration;
 
-- (id)initFromRow:(int)fromRow column:(int)fromCol
+- (instancetype)initFromRow:(int)fromRow column:(int)fromCol
             toRow:(int)toRow   column:(int)toCol
          iconName:(NSString *)iconName
         pieceType:(int)pieceType

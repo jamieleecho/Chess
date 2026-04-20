@@ -64,14 +64,14 @@ short  p;
 
 @implementation Board
 
-- (id)initWithCoder:(NSCoder *)coder {
+- (instancetype)initWithCoder:(NSCoder *)coder {
     if (self = [super initWithCoder:coder]) {
         [self commonInit];
     }
     return self;
 }
 
-- (id)initWithFrame: (NSRect) f {
+- (instancetype)initWithFrame: (NSRect) f {
     if (self = [super initWithFrame:f]) {
         [self commonInit];
     }
@@ -235,7 +235,7 @@ short  p;
 	/* Draw piece at new location. */
 	[theSquare drawInteriorWithFrame: pieceRect inView: self];
 	[[self window] flushWindow];
-	PSsetgray( NSBlack );
+	PSsetgray( 0.0 );
 	PSsetlinewidth( (float)2.0 );
 	PSclippath();
 	PSstroke();
@@ -311,7 +311,7 @@ short  p;
 		}
 	    }
 	}
-	PSsetgray( NSBlack );
+	PSsetgray( 0.0 );
 	PSsetlinewidth( (float)2.0 );
 	PSclippath();
 	PSstroke();

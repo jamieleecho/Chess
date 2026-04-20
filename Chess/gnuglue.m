@@ -57,18 +57,18 @@ static short		GameQueens[240];
 
 /* private functions */
 
-static NSString * computerMove()
+static NSString * computerMove(void)
 {
     if( mvstr1[0] )
-	return [NSString stringWithCString: (const char *) mvstr1];
+	return [NSString stringWithUTF8String: (const char *) mvstr1];
     return nil;
 }
 
 /* (not used)
-static NSString * opponentMove()
+static NSString * opponentMove(void)
 {
     if( mvstr2[0] )
-	return [NSString stringWithCString: (const char *) mvstr2];
+	return [NSString stringWithUTF8String: (const char *) mvstr2];
     return nil;
 }
 */
@@ -85,7 +85,7 @@ int *castle_flag;
     else if( [move isEqual: @"o-o-o"] )
 	*castle_flag = LEFT_CASTLE;
     else {
-	char *algbr = (char *) [move cString];
+	char *algbr = (char *) [move UTF8String];
 	if( algbr && *algbr ) {
 	    *col1 = algbr[0] - 'a';
 	    *row1 = algbr[1] - '0' - 1;
@@ -135,7 +135,7 @@ int type;
 	    'a' + col1, '0' + row1 + 1, 
 	    'a' + col2, '0' + row2 + 1);
 
-    return [NSString stringWithCString: (const char *) algbr];
+    return [NSString stringWithUTF8String: (const char *) algbr];
 }
 
 static unsigned short convert_string( string, side )
@@ -148,7 +148,7 @@ int  side;
     else if( [string isEqual: @"o-o"] )
 	move = ( side == black ) ? 0x3C3E : 0x0406;
     else {
-	char *algbr = (char *)[string cString];
+	const char *algbr = [string UTF8String];
 	if( algbr && *algbr ) {
 	    int r1, r2, c1, c2;
 	    c1 = algbr[0] - 'a';
@@ -162,7 +162,7 @@ int  side;
 }
 
 /* (not used)
-static NSZone * create_zone()
+static NSZone * create_zone(void)
 {
     unsigned pageSize    = NSPageSize();
     unsigned granularity = pageSize;
@@ -209,7 +209,7 @@ NSArray *moves;
    Functions invoked by gnuchess.c modules
 */
 
-void OutputMove()
+void OutputMove(void)
 {
     int  row1, col1, row2, col2, castle_flag;
     NSString  *move = computerMove();
@@ -248,7 +248,7 @@ void OutputMove()
     return;
 }
 
-void SelectLevel()
+void SelectLevel(void)
 {
 #ifdef NeXT_DEBUG
     NSLog( @"SelectLevel" );
@@ -256,7 +256,7 @@ void SelectLevel()
     return;
 }
 
-void UpdateClocks()
+void UpdateClocks(void)
 {
 #ifdef NeXT_DEBUG
     NSLog( @"UpdateClocks" );
@@ -308,7 +308,7 @@ void ElapsedTime( int iop )
     return;
 }
 
-void SetTimeControl()
+void SetTimeControl(void)
 {
     short  moves;
     long   clock;
@@ -367,7 +367,7 @@ void GameEnd( short score )
     return;
 }
 
-void ClrScreen()
+void ClrScreen(void)
 {
 #ifdef NeXT_DEBUG
     NSLog( @"ClrScreen" );
@@ -410,7 +410,7 @@ void GetOpenings()
 
     bundle = [NSBundle mainBundle];
     path = [bundle pathForResource: @"gnuchess" ofType: @"book"];
-    book = [NSString stringWithContentsOfFile: path];
+    book = [NSString stringWithContentsOfFile: path encoding: NSUTF8StringEncoding error: nil];
     scanner = [NSScanner scannerWithString: book];
     if( ! book || ! scanner )
 	return;
@@ -472,7 +472,7 @@ void ShowCurrentMove( short pnt, short f, short t )
     return;
 }
 
-void ShowSidetomove()
+void ShowSidetomove(void)
 {
 #ifdef NeXT_DEBUG
     NSString *colorStr = ( player == white ) ? @"WHITE" : @"BLACK";
@@ -492,18 +492,19 @@ static void show_message( NSString *str )
 
 void ShowMessage( const char *s )
 {
-    show_message( [NSString stringWithCString: s] );
+    show_message( [NSString stringWithUTF8String: s] );
     return;
 }
 
-static void ExitChess()
+static void ExitChess(void)
 {
     [NSApp terminate: NSApp];
     exit(0);
 }
 
-static void Die()
+static void Die(int sig)
 {
+    (void)sig;
     if( [NSApp canFinishGame] ) {
 	signal( SIGINT,  SIG_IGN );
 	signal( SIGQUIT, SIG_IGN );
@@ -512,12 +513,13 @@ static void Die()
     return;
 }
 
-static void TerminateSearch()
+static void TerminateSearch(int sig)
 {
+    (void)sig;
     signal( SIGINT,  SIG_IGN );
     signal( SIGQUIT, SIG_IGN );
     chess_timeout = true;
-    signal( SIGINT,  Die );	/* Die() */
+    signal( SIGINT,  Die );
     signal( SIGQUIT, Die );
     return;
 }
@@ -533,19 +535,19 @@ void SearchStartStuff( short side )
    Functions invoked by Chess.app modules
 */
 
-void init_gnuchess ()
+void init_gnuchess (void)
 {
     gnuchess_main_init();
     return;
 }
 
-void new_game ()
+void new_game (void)
 {
     NewGame();
     return;
 }
 
-void in_check ()
+void in_check (void)
 {
     int incheck = -1;
     if( SqAtakd( PieceList[computer][0], opponent ) )
@@ -576,7 +578,7 @@ void get_game ( NSString *filename )
 	NSLog( @"file `%@' is not readable.", filename );
 	return;
     }
-    path = [filename cString];
+    path = [filename UTF8String];
     if( ! path || ! *path ) {
 	NSLog( @"filename `%@' has empty CString.", filename );
 	return;
@@ -651,7 +653,7 @@ int save_game ( NSString *filename )
 	    return( 0 );
 	}
     }
-    path = [filename cString];
+    path = [filename UTF8String];
     if( ! path || ! *path ) {
 	NSLog( @"filename `%@' has empty CString.", filename );
 	return( 0 );
@@ -704,7 +706,7 @@ int list_game ( NSString *filename )
 	    return( 0 );
 	}
     }
-    path = [filename cString];
+    path = [filename UTF8String];
     if( ! path || ! *path ) {
 	NSLog( @"filename `%@' has empty CString.", filename );
 	return( 0 );
@@ -776,7 +778,7 @@ void undo_move ()
     return;
 }
 
-int give_hint ()
+int give_hint (void)
 {
     if( hint ) {
 	short from = (short)( hint >> 8 );
@@ -800,18 +802,15 @@ int type;
     return _convert_rowcol( row1, col1, row2, col2, type );
 }
 
-BOOL verify_move( move )
-NSString *move;
+BOOL verify_move( NSString *move )
 {
     unsigned short mv;
-    char *str = (char *)[move cString];
+    char *str = (char *)[move UTF8String];
     int verify = VerifyMove( str+(strlen(str)>4), (short)0, &mv );
     return ( verify == true ) ? YES : NO;
 }
 
-void select_move_start ( side, iop )
-int  side;
-int  iop;
+void select_move_start ( int side, int iop )
 {
     move_info.side  = (short) side;
     move_info.alpha = (short) 0;
@@ -823,24 +822,24 @@ int  iop;
     return;
 }
 
-void select_move_end ()
+void select_move_end (void)
 {
     (void)SelectMoveEnd( &move_info );
     return;
 }
 
-BOOL select_loop_end ()
+BOOL select_loop_end (void)
 {
     return (BOOL)(chess_timeout || Sdepth >= MaxSearchDepth);
 }
 
-void select_loop ()
+void select_loop (void)
 {
     SelectLoop( &move_info );
     return;
 }
 
-void run_computer_game ()
+void run_computer_game (void)
 {
     quit = false;
     while( ! mate && ! quit && ! [NSApp finished] )
@@ -850,14 +849,14 @@ void run_computer_game ()
     return;
 }
 
-void stop_computer_game ()
+void stop_computer_game (void)
 {
     quit = true;
     chess_timeout = true;
     return;
 }
 
-void select_computer_move ()
+void select_computer_move (void)
 {
     Sdepth = 0;
     ft = 0;
@@ -866,74 +865,70 @@ void select_computer_move ()
     return;
 }
 
-int current_player ()
+int current_player (void)
 {
     return (int)player;
 }
 
-int game_count ()
+int game_count (void)
 {
     return (int)GameCnt;
 }
 
-int move_time ()
+int move_time (void)
 {
     return (int)GameList[GameCnt].time;
 }
 
-int response_time ()
+int response_time (void)
 {
     return (int)( ResponseTime + ExtraTime );
 }
 
-void reset_response_time ()
+void reset_response_time (void)
 {
     ResponseTime = 0;
     ExtraTime = 0;
     return;
 }
 
-int elapsed_time ()
+int elapsed_time (void)
 {
     return (int)et;
 }
 
-short *default_pieces ()
+short *default_pieces (void)
 {
     return Stboard;
 }
 
-short *default_colors ()
+short *default_colors (void)
 {
     return Stcolor;
 }
 
-short *current_pieces ()
+short *current_pieces (void)
 {
     return board;
 }
 
-short *current_colors ()
+short *current_colors (void)
 {
     return color;
 }
 
-int  game_level ()
+int  game_level (void)
 {
     return (int) Level;
 }
 
-void set_game_level ( level )
-int  level;
+void set_game_level ( int level )
 {
     Level = (long) level;
     return;
 }
 
-void interpret_level ( level, moves, minutes )
-int  level;
-int  *moves;
-int  *minutes;
+void interpret_level ( int level, int *moves, int *minutes )
 {
     switch( level ) {
 	case 1  : *moves = 60; *minutes = 5;   break;
@@ -951,8 +946,7 @@ int  *minutes;
     return;
 }
 
-void set_preferences ( prefs )
-struct Preferences *prefs;
+void set_preferences ( struct Preferences *prefs )
 {
     if( prefs ) {
 	TCmoves   = (short)prefs->time_cntl_moves;
@@ -967,47 +961,43 @@ struct Preferences *prefs;
     return;
 }
 
-void set_timeout( flag )
-BOOL  flag;
+void set_timeout( BOOL flag )
 {
     chess_timeout = (short)flag;
     return;
 }
 
-void set_game_queen( piece )
-int  piece;
+void set_game_queen( int piece )
 {
     GameQueens[GameCnt] = (short)piece;
     return;
 }
 
-NSString *copyright_text ()
+NSString *copyright_text (void)
 {
     NSBundle *bundle = [NSBundle mainBundle];
     NSString *path   = [bundle pathForResource: @"COPYING" ofType: nil];
     if( path ) {
-	NSString *string = [NSString stringWithContentsOfFile: path];
+	NSString *string = [NSString stringWithContentsOfFile: path encoding: NSUTF8StringEncoding error: nil];
 	if( string )
 	    return string;
     }
     return nil;
 }
 
-NSString *user_fullname ()
+NSString *user_fullname (void)
 {
     struct passwd *pwen = getpwuid( getuid() );
-    return [NSString stringWithCString: (const char *) pwen->pw_gecos];
+    return [NSString stringWithUTF8String: (const char *) pwen->pw_gecos];
 }
 
-void sleep_microsecs ( microsecs )
-unsigned microsecs;
+void sleep_microsecs ( unsigned microsecs )
 {
     (void) usleep( microsecs );
     return;
 }
 
-int  floor_value ( value )
-double  value;
+int  floor_value ( double value )
 {
     return (int) floor( value );
 }
