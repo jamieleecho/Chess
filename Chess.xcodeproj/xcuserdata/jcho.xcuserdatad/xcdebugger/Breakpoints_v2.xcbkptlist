@@ -429,7 +429,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "876"
             endingLineNumber = "876"
-            landmarkName = "-displayResponseMeter:"
+            landmarkName = "-highlightSquareAt::afterDelay:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

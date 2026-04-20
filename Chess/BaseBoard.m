@@ -38,6 +38,10 @@
 - (NSArray *)activeHighlights   { return _highlights; }
 - (NSArray *)activeMovingPieces { return _movingPieces; }
 
+- (BOOL)hasActiveAnimations {
+    return _highlights.count > 0 || _movingPieces.count > 0;
+}
+
 - (void)ensureTimerRunning {
     if (!_animationTimer) {
         _animationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 / ANIMATION_TICK_HZ

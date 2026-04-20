@@ -28,6 +28,7 @@
 
 - (NSArray *)activeHighlights;       // for subclass drawRect:
 - (NSArray *)activeMovingPieces;     // for subclass drawRect:
+- (BOOL)hasActiveAnimations;
 
 // Subclasses implement this — they know how to read piece info out of
 // their own Square/Square3D at (fromRow, fromCol) and construct a

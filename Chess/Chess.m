@@ -4,6 +4,7 @@
 #import "Chess.h"
 
 // components
+#import "BaseBoard.h"
 #import "Board.h"
 #import "Board3D.h"
 #import "Clock.h"	// not used
@@ -794,6 +795,15 @@ void CL_MakeMove(const char * move)
     reset_response_time();
     [self displayResponseMeter: WHITE];
     [self displayResponseMeter: BLACK];
+
+    if (prefs.bothsides) {
+        BaseBoard *bb = (BaseBoard *)gameBoard;
+        NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow: 5.0];
+        while ([bb hasActiveAnimations] && [deadline timeIntervalSinceNow] > 0) {
+            [[NSRunLoop currentRunLoop] runMode: NSDefaultRunLoopMode
+                                     beforeDate: [NSDate dateWithTimeIntervalSinceNow: 0.05]];
+        }
+    }
 
 	if (prefs.useSR)
 		CL_Listen(!side, current_pieces(), current_colors());
