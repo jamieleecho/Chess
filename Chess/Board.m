@@ -98,7 +98,6 @@ short  p;
                                   capturedPieceColor:0
                                           afterDelay:delay];
     [self enqueueMovingPiece:mp];
-    [mp release];
 }
 
 
@@ -275,7 +274,6 @@ short  p;
     [self unlockFocus];
 
     [super print: sender];
-    [printImage release];
     printImage = nil;
     return;
 }

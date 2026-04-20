@@ -78,15 +78,13 @@ void CL_MakeMove(const char * move)
 								NULL]];
 
     gameBoard = self.board3D;
-    // [self.board2D retain];
-    // [self.board2D removeFromSuperview];
 
 	scanner = [NSScanner scannerWithString:[defaults objectForKey:@"WhiteColor"]];
 	[scanner scanFloat:&red];
 	[scanner scanFloat:&green];
 	[scanner scanFloat:&blue];
 	[scanner scanFloat:&alpha];
-    white_color = [[NSColor colorWithCalibratedRed:red green:green blue:blue alpha:1.0] retain];
+    white_color = [NSColor colorWithCalibratedRed:red green:green blue:blue alpha:1.0];
 	[self.whiteColorWell setColor:white_color];
 
 	scanner = [NSScanner scannerWithString:[defaults objectForKey:@"BlackColor"]];
@@ -94,7 +92,7 @@ void CL_MakeMove(const char * move)
 	[scanner scanFloat:&green];
 	[scanner scanFloat:&blue];
 	[scanner scanFloat:&alpha];
-    black_color = [[NSColor colorWithCalibratedRed:red green:green blue:blue alpha:1.0] retain];
+    black_color = [NSColor colorWithCalibratedRed:red green:green blue:blue alpha:1.0];
 	[self.blackColorWell setColor:black_color];
 
 	[self.levelSlider setIntValue:[defaults integerForKey:@"Level"]];
@@ -195,8 +193,7 @@ void CL_MakeMove(const char * move)
     finished = 0;
     [op setRequiredFileType: @"chess"];
     if( [op runModal] == NSOKButton ) {
-		[filename release];
-		filename = [[op filename] retain];
+		filename = [op filename];
 		get_game( filename );
     }
     dirtyGame = NO;
@@ -230,8 +227,7 @@ void CL_MakeMove(const char * move)
     NSSavePanel	*sp = [NSSavePanel savePanel];
     [sp setRequiredFileType: @"chess"];
     if( [sp runModal] == NSOKButton ) {
-		[filename release];
-		filename = [[sp filename] retain];
+		filename = [sp filename];
 		save_game( filename );
     }
     dirtyGame = NO;
@@ -305,27 +301,12 @@ void CL_MakeMove(const char * move)
 	[self.menu2D setState: NSOnState];
 	[self.menu3D setState: NSOffState];
     if( gameBoard == self.board3D ) {
-		id      v = [gameBoard superview];
-		//	NSRect  b = [v bounds];
 		short  *pieces = current_pieces();
 		short  *colors = current_colors();
 
-		// [gameBoard retain];
-		// [gameBoard removeFromSuperview];
-
-		//	[v lockFocus];
-		//	PSgsave();
-		//	PSsetgray( NSBlack );
-		//	PSrectfill( (float)0.0, (float)0.0, b.size.width, b.size.height );
-		//	PSgrestore();
-		//	[v unlockFocus];
-
-		// [v addSubview: self.board2D];
-        
-		// [self.board2D release];
-        gameBoard.hidden = YES;
+        [(NSView *)gameBoard setHidden: YES];
 		gameBoard = self.board2D;
-        gameBoard.hidden = NO;
+        [(NSView *)gameBoard setHidden: NO];
 		[gameBoard layoutBoard: pieces color: colors];
 
 		[self disableClockPanel];
@@ -338,18 +319,12 @@ void CL_MakeMove(const char * move)
 	[self.menu2D setState: NSOffState];
 	[self.menu3D setState: NSOnState];
     if( gameBoard == self.board2D ) {
-		id  v = [gameBoard superview];
 		short  *pieces = current_pieces();
 		short  *colors = current_colors();
 
-		// [gameBoard retain];
-		// [gameBoard removeFromSuperview];
-
-		// [v addSubview: self.board3D];
-		// [self.board3D release];
-        gameBoard.hidden = YES;
+        [(NSView *)gameBoard setHidden: YES];
         gameBoard = self.board3D;
-        gameBoard.hidden = NO;
+        [(NSView *)gameBoard setHidden: NO];
 		[gameBoard layoutBoard: pieces color: colors];
 
 		[self enableClockPanel];
@@ -397,7 +372,6 @@ void CL_MakeMove(const char * move)
     [image2 unlockFocus];
 
     [self.whiteSample display];
-    [image1 release];
 
     if( ! [white_color isEqual: [self.whiteColorWell color]] )
 		[self.colorSetButton setEnabled: YES];
@@ -435,7 +409,6 @@ void CL_MakeMove(const char * move)
 
     self.blackSample.image = image2;
     [self.blackSample display];
-    [image1 release];
 
     if( ! [black_color isEqual: [self.blackColorWell color]] )
 		[self.colorSetButton setEnabled: YES];
@@ -462,15 +435,13 @@ void CL_MakeMove(const char * move)
 
     if( ! [white_color isEqual: [self.whiteColorWell color]] ) {
 		CGFloat red, green, blue, alpha;
-		[white_color release];
-		white_color = [[self.whiteColorWell color] retain];
+		white_color = [self.whiteColorWell color];
 		[white_color getRed:&red green:&green blue:&blue alpha:&alpha];
 		[defaults setObject:[NSString stringWithFormat:@"%1.3f %1.3f %1.3f %1.3f", red, green, blue, alpha] forKey:@"WhiteColor"];
     }
     if( ! [black_color isEqual: [self.blackColorWell color]] ) {
-        CGFloat red, green, blue, alpha;		
-		[black_color release];
-		black_color = [[self.blackColorWell color] retain];
+        CGFloat red, green, blue, alpha;
+		black_color = [self.blackColorWell color];
 		[black_color getRed:&red green:&green blue:&blue alpha:&alpha];
 		[defaults setObject:[NSString stringWithFormat:@"%1.3f %1.3f %1.3f %1.3f", red, green, blue, alpha] forKey:@"BlackColor"];
     }
@@ -494,7 +465,6 @@ void CL_MakeMove(const char * move)
     [image2 unlockFocus];
 
     [gameBoard display];
-    [image1 release];
 
     [self.colorSetButton setEnabled: NO];
     return;
@@ -633,13 +603,11 @@ void CL_MakeMove(const char * move)
     prefs.cheat = YES;		// always YES?
 
     if( ! [prefs.white_name isEqual: [self.whiteSideName stringValue]] ) {
-		[prefs.white_name release];
-		prefs.white_name = [[self.whiteSideName stringValue] retain];
+		prefs.white_name = [self.whiteSideName stringValue];
 		[self.whiteClockText setStringValue: prefs.white_name];
     }
     if( ! [prefs.black_name isEqual: [self.blackSideName stringValue]] ) {
-		[prefs.black_name release];
-		prefs.black_name = [[self.blackSideName stringValue] retain];
+		prefs.black_name = [self.blackSideName stringValue];
 		[self.blackClockText setStringValue: prefs.black_name];
     }
 
@@ -1061,8 +1029,7 @@ void CL_MakeMove(const char * move)
 {
     chess_debug( (@"Open file: %@ type: %@", path, type) );
     if( type && [type isEqual: @"chess"] ) {
-		[filename release];
-		filename = [path retain];
+		filename = path;
 		get_game( filename );
 		return (int)YES;
     }

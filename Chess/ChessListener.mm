@@ -143,24 +143,25 @@ public:
 	void				StartListening();
 	void				StopListening();
 private:
-	NSSpeechRecognizer *speechRecognizer;
-    NSMutableArray<NSString *> *commands;
+	NSSpeechRecognizer * __strong speechRecognizer;
+	ChessListenerDelegate * __strong fDelegate;
+    NSMutableArray<NSString *> * __strong commands;
 	SRLanguageModel		fModel;
-	NSString *  		fTakesModel;
-	NSString *			fToModel;
-    NSString *			fPieceModel[7];
-    NSString *			fCastleModel;
-    NSString *			fUndoModel;
-    NSString *		    fKingSideModel;
-    NSString *			fQueenSideModel;
-    NSString *			fColModel[8];
-    NSString *			fRowModel[8];
+	NSString *  __strong fTakesModel;
+	NSString *	__strong fToModel;
+    NSString *	__strong fPieceModel[7];
+    NSString *	__strong fCastleModel;
+    NSString *	__strong fUndoModel;
+    NSString *	__strong fKingSideModel;
+    NSString *	__strong fQueenSideModel;
+    NSString *	__strong fColModel[8];
+    NSString *	__strong fRowModel[8];
 	bool				fOK;
 	bool				fListening;
 	
-	void				MakeWord(NSString ** word, const char * text);
-	void				MakePhrase(NSString ** phrase, const char * text);
-	void				MakeAlt(NSString ** alt, const char * t1, const char * t2);
+	void				MakeWord(NSString * __strong * word, const char * text);
+	void				MakePhrase(NSString * __strong * phrase, const char * text);
+	void				MakeAlt(NSString * __strong * alt, const char * t1, const char * t2);
 };
 
 CLSRMoveBuilder::CLSRMoveBuilder()
@@ -172,7 +173,8 @@ CLSRMoveBuilder::CLSRMoveBuilder()
 	fListening	= false;
 	
     speechRecognizer = [[NSSpeechRecognizer alloc] init];
-    speechRecognizer.delegate = [[ChessListenerDelegate alloc] init];
+    fDelegate = [[ChessListenerDelegate alloc] init];
+    speechRecognizer.delegate = fDelegate;
     commands = [[NSMutableArray alloc] init];
 
 	MakeWord(&fToModel, 		"to");
@@ -220,21 +222,7 @@ CLSRMoveBuilder::~CLSRMoveBuilder()
 		return;
     if (fListening) {
         [speechRecognizer stopListening];
-        [speechRecognizer release];
-        speechRecognizer = nil;
     }
-
-	for (int piece = 1; piece<7; ++piece) {
-        [fPieceModel[piece] release];
-	}
-	for (int rowcol = 0; rowcol<8; ++rowcol) {
-        [fRowModel[rowcol] release];
-        [fColModel[rowcol] release];
-	}
-    [fCastleModel release];
-    [fKingSideModel release];
-    [fQueenSideModel release];
-    [fUndoModel release];
 }
 
 void CLSRMoveBuilder::StopListening()
@@ -292,17 +280,17 @@ void CLSRMoveBuilder::EndMoveList()
 	StartListening();
 }
 
-void CLSRMoveBuilder::MakeWord(NSString ** word, const char * text)
+void CLSRMoveBuilder::MakeWord(NSString * __strong * word, const char * text)
 {
     *word = [[NSString alloc] initWithUTF8String:text];
 }
 
-void CLSRMoveBuilder::MakePhrase(NSString ** phrase, const char * text)
+void CLSRMoveBuilder::MakePhrase(NSString * __strong * phrase, const char * text)
 {
     *phrase = [[NSString alloc] initWithUTF8String:text];
 }
 
-void CLSRMoveBuilder::MakeAlt(NSString ** alt, const char * t1, const char * t2)
+void CLSRMoveBuilder::MakeAlt(NSString * __strong * alt, const char * t1, const char * t2)
 {
     *alt = [[NSString alloc] initWithUTF8String:t1];
 }

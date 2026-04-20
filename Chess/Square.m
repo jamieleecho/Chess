@@ -12,16 +12,9 @@
   and may contain a piece.
 */
 
-- (void) dealloc
-{
-    [icon release];
-    [super dealloc];
-    return;
-}
-
 - (void) setBackground: (float)b
 {
-    background = b; 
+    background = b;
     return;
 }
 
@@ -32,8 +25,7 @@
 
 - (void) setImage: (NSImage *)i
 {
-    [icon release];
-    icon = [[i name] retain];
+    icon = [i name];
     return;
 }
 

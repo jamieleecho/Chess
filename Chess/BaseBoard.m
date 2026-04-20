@@ -30,9 +30,6 @@
 
 - (void)dealloc {
     [_animationTimer invalidate];
-    [_highlights release];
-    [_movingPieces release];
-    [super dealloc];
 }
 
 - (NSArray *)activeHighlights   { return _highlights; }
@@ -62,7 +59,6 @@
                                                     column:col
                                                 afterDelay:delay];
     [_highlights addObject:h];
-    [h release];
     [self ensureTimerRunning];
     [self setNeedsDisplay:YES];
 }

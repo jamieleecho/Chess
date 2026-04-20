@@ -57,12 +57,6 @@ capturedPieceColor:(int)capturedPieceColor
     return self;
 }
 
-- (void)dealloc {
-    [_iconName release];
-    [_capturedIconName release];
-    [super dealloc];
-}
-
 - (void)tick {
     CFTimeInterval elapsed = CACurrentMediaTime() - _startTime;
     if (elapsed < _delay) {

@@ -16,8 +16,8 @@ struct Preferences {
 	BOOL  useSR;
     BOOL  bothsides;
     BOOL  cheat;
-    NSString  *white_name;
-    NSString  *black_name;
+    NSString  * __strong white_name;
+    NSString  * __strong black_name;
 };
 
 // game status
@@ -76,7 +76,7 @@ void PSashow(float w, float h, const char *s);
 @interface Chess : NSApplication
 {
 // game board
-    NSControl  *gameBoard;		// board2D or board3D
+    id  gameBoard;		// board2D or board3D
     int  currentRow;
     int  currentCol;
 

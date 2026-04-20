@@ -181,7 +181,6 @@ static void convert_point( NSPoint *p, int *r, int *c )
                                   capturedPieceColor:capColor
                                           afterDelay:delay];
     [self enqueueMovingPiece:mp];
-    [mp release];
 }
 
 - (void)commonInit {
@@ -209,9 +208,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
 
 - (void)setBackgroundBitmap: (NSImage *) bitmap
 {
-    if( _background )
-        [_background release];
-    _background = [bitmap retain];
+    _background = bitmap;
     return;
 }
 
@@ -222,9 +219,7 @@ static void convert_point( NSPoint *p, int *r, int *c )
 
 - (void)setPiecesBitmap: (NSImage *) bitmap
 {
-    if( _pieces )
-        [_pieces release];
-    _pieces = [bitmap retain];
+    _pieces = bitmap;
     return;
 }
 
@@ -412,7 +407,6 @@ static void convert_point( NSPoint *p, int *r, int *c )
     [self unlockFocus];
     
     [super print: sender];
-    [printImage release];
     printImage = nil;
     return;
 }
