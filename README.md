@@ -3,7 +3,7 @@
 This repo contains the source code for [Mac OS X 10.0 Chess](https://github.com/apple-oss-distributions/Chess/tree/Chess-45),
 updated to run on macOS 26.
 
-![MacOS X 10.0 Chess Running on macOS 26](images/MacOS X 10.0 Chess.png)
+![MacOS X 10.0 Chess Running on macOS 26](images/MacOS%20X%2010.0%20Chess.png)
 
 ## Motivation
 
